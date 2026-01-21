@@ -1,6 +1,17 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
+import { onMounted } from 'vue'
+import api from '@/services/api'
+
+onMounted(async () => {
+  try {
+    const response = await api.get('/health')
+    console.log('✅ Connected to Laravel!', response)
+  } catch (error) {
+    console.error('❌ Connection failed:', error)
+  }
+})
 </script>
 
 <template>
