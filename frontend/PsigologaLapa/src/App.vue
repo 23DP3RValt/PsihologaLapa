@@ -15,20 +15,35 @@ onMounted(async () => {
 </script>
 
 <template>
-  <nav class="nav">
+  <body>
+    <nav class="nav">
     <div class="logo">
-      <h2>Sporta Psiholoģija</h2>
+      <h2><b>Sporta Psiholoģija</b></h2>
     </div>
     <div class="navButton">
-      <a href="#home"><button>Sākums</button></a>
-      <a href="#about"><button>Informācija</button></a>
-      <a href="#services"><button>Par mani</button></a>
-      <a href="#contact"><button>Kontakti</button></a>
+      <a href="#sakums"><button>Sākums</button></a>
+      <a href="#info"><button>Informācija</button></a>
+      <a href="#parmani"><button>Par mani</button></a>
+      <a href="#kontakti"><button>Kontakti</button></a>
     </div>
   </nav>
+  <div class="info">
+
+  </div>
+  </body>
 </template>
 
 <style scoped>
+@font-face {
+  font-family: 'Quicksand';
+  src: url('@/components/fonts/Quicksand/static/Quicksand-Bold.ttf') format('truetype');  
+  font-weight: 700;
+  font-style: normal;
+}
+
+body {
+  font-family: "Quicksand", sans-serif;
+}
 .nav {
   height: 80px;
   width: 100vw;
@@ -43,6 +58,7 @@ onMounted(async () => {
   top: 0;
   left: 0;
   z-index: 1000;
+  font-family: "Quicksand", sans-serif;
 }
 
 .logo h2 {
@@ -57,6 +73,10 @@ onMounted(async () => {
   display: flex;
   gap: 20px;
   align-items: center;
+  a button{
+    font-family: "Quicksand", sans-serif;
+
+  }
 }
 
 .navButton a {
