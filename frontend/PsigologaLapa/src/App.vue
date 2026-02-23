@@ -1,8 +1,8 @@
 <script setup>
-// import HelloWorld from './components/HelloWorld.vue'
-// import TheWelcome from './components/TheWelcome.vue'
 import { onMounted } from 'vue'
 import api from '@/services/api'
+import Calendar from '@/components/Calendar.vue'
+import EventsList from '@/components/EventsList.vue'
 
 onMounted(async () => {
   try {
@@ -16,124 +16,49 @@ onMounted(async () => {
 
 <template>
   <body>
+    <!-- <script type="module" src="/src/main.css"></script> -->
     <nav class="nav">
-    <div class="logo">
-      <h2><b>Sporta Psiholoģija</b></h2>
+      <div class="logo">
+        <h2><b>Sporta Psiholoģija</b></h2>
+      </div>
+      <div class="navButton">
+        <a href="#sakums"><button>Sākums</button></a>
+        <a href="#rezervet"><button>Rezervēšana</button></a>
+        <a href="#info"><button>Lasāmresursi</button></a>
+        <a href="#parmani"><button>Par mani</button></a>
+        <a href="#kontakti"><button>Kontakti</button></a>
+        <a href="#registrs"><button class="register-btn">Reģistrēties</button></a>
+      </div>
+    </nav>
+    
+    <div id="sakums" class="sakums">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>KĀ KOGNITĪVIE PROCESI SAISTĪTI<br>AR FIZISKO VEIKTSPĒJU?</h1>
+          <h2>LATVIJĀ NEBIJIS PĒTĪJUMS<br>SPORTA PSIHOLOĢIJĀ</h2>
+          <a href="#registrs" class="hero-btn">PIESAKIES DALĪBAI PĒTĪJUMĀ</a>
+        </div>
+      </div>
     </div>
-    <div class="navButton">
-      <a href="#sakums"><button>Sākums</button></a>
-      <a href="#info"><button>Informācija</button></a>
-      <a href="#parmani"><button>Par mani</button></a>
-      <a href="#kontakti"><button>Kontakti</button></a>
+    
+    <div id="rezervet" class="rezervet">
+      <Calendar />
     </div>
-  </nav>
-  <div class="info">
-
-  </div>
+    <div id="info" class="info">
+      <EventsList />
+    </div>
+    <div id="parmani" class="parmani">
+      
+    </div>
+    <div id="kontakti" class="kontakti">
+      <form action="Controler.php">
+        <label for="mam">Label <br></label>
+        <input type="text" name="user" placeholder="Username"> <br>
+        <input type="password" name="password" placeholder="Password"> <br>
+        <input type="submit" name="submit">
+        <a href="/side.html"><button type="button">dd</button></a>
+      </form>
+    </div>
   </body>
 </template>
 
-<style scoped>
-@font-face {
-  font-family: 'Quicksand';
-  src: url('@/components/fonts/Quicksand/static/Quicksand-Bold.ttf') format('truetype');  
-  font-weight: 700;
-  font-style: normal;
-}
-
-body {
-  font-family: "Quicksand", sans-serif;
-}
-.nav {
-  height: 80px;
-  width: 100vw;
-  max-width: 100vw;
-  background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 5%;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  font-family: "Quicksand", sans-serif;
-}
-
-.logo h2 {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
-
-.navButton {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  a button{
-    font-family: "Quicksand", sans-serif;
-
-  }
-}
-
-.navButton a {
-  text-decoration: none;
-}
-
-.navButton button {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 10px 24px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.navButton button:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .nav {
-    height: auto;
-    flex-direction: column;
-    padding: 15px 5%;
-  }
-  
-  .logo {
-    margin-bottom: 10px;
-  }
-  
-  .navButton {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .navButton button {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo h2 {
-    font-size: 1.2rem;
-  }
-  
-  .navButton button {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
-}
-</style>

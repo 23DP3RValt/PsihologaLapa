@@ -1,12 +1,316 @@
 @import './base.css';
 
-/* #app {
-} */
+@font-face {
+  font-family: 'Quicksand';
+  src: url('@/components/fonts/Quicksand/static/Quicksand-Bold.ttf') format('truetype');  
+  font-weight: 700;
+  font-style: normal;
+}
 
-@media (min-width: 1024px) {
-/* 
+@font-face {
+  font-family: 'Quicksand';
+  src: url('@/components/fonts/Quicksand/static/Quicksand-Regular.ttf') format('truetype');  
+  font-weight: 400;
+  font-style: normal;
+}
 
-  #app {
+@font-face {
+  font-family: 'Quicksand';
+  src: url('@/components/fonts/Quicksand/static/Quicksand-Light.ttf') format('truetype');  
+  font-weight: 300;
+  font-style: normal;
+}
 
-  } */
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('@/components/fonts/Crimson_Pro/static/CrimsonPro-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('@/components/fonts/Crimson_Pro/static/CrimsonPro-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('@/components/fonts/Crimson_Pro/static/CrimsonPro-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Quicksand", sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Navigation */
+.nav {
+  height: 80px;
+  width: 100vw;
+  max-width: 100vw;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  font-family: "Quicksand", sans-serif;
+}
+
+.logo h2 {
+  color: #003366;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.navButton {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.navButton a {
+  text-decoration: none;
+}
+
+.navButton button {
+  background: transparent;
+  color: #333;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Quicksand", sans-serif;
+}
+
+.navButton button:hover {
+  background: rgba(0, 51, 102, 0.05);
+  color: #003366;
+}
+
+.register-btn {
+  background: linear-gradient(135deg, #FF9933 0%, #FF3300 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 10px 24px !important;
+  box-shadow: 0 4px 10px rgba(255, 51, 0, 0.2);
+}
+
+.register-btn:hover {
+  background: linear-gradient(135deg, #FF3300 0%, #FF9933 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 51, 0, 0.3) !important;
+  color: white !important;
+}
+
+/* Hero Section - Sakums */
+.sakums {
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  padding-top: 80px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.hero-text {
+  text-align: center;
+  color: #003366;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-text h1 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+  line-height: 1.3;
+  font-family: 'Crimson Pro', serif;
+  color: #003366;
+  text-transform: uppercase;
+}
+
+.hero-text h2 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+  color: #FF3300;
+  font-family: 'Crimson Pro', serif;
+  line-height: 1.3;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #FF9933 0%, #FF3300 100%);
+  color: white;
+  padding: 18px 50px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 50px;
+  box-shadow: 0 10px 25px rgba(255, 51, 0, 0.3);
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero-btn:hover {
+  background: linear-gradient(135deg, #FF3300 0%, #FF9933 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(255, 51, 0, 0.4);
+}
+
+/* Other sections (placeholder styling) */
+.rezervet,
+.info,
+.parmani,
+.kontakti {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.rezervet {
+  background-color: #1e3a5f;
+}
+
+.info {
+  background-color: #2a4d6e;
+}
+
+.parmani {
+  background-color: #1f3a4b;
+}
+
+.kontakti {
+  background-color: #0b2b4a;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hero-text h1 {
+    font-size: 2.8rem;
+  }
+  
+  .hero-text h2 {
+    font-size: 2rem;
+  }
+  
+  .hero-btn {
+    padding: 16px 45px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav {
+    height: auto;
+    flex-direction: column;
+    padding: 15px 5%;
+  }
+  
+  .logo {
+    margin-bottom: 10px;
+  }
+  
+  .navButton {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .navButton button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+  
+  .register-btn {
+    padding: 8px 20px !important;
+  }
+  
+  .hero-text h1 {
+    font-size: 2.2rem;
+  }
+  
+  .hero-text h2 {
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-btn {
+    padding: 14px 40px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo h2 {
+    font-size: 1.2rem;
+  }
+  
+  .navButton button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .register-btn {
+    padding: 6px 16px !important;
+  }
+  
+  .hero-text h1 {
+    font-size: 1.6rem;
+  }
+  
+  .hero-text h2 {
+    font-size: 1.2rem;
+  }
+  
+  .hero-btn {
+    padding: 12px 30px;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 300px;
+  }
 }
