@@ -21,12 +21,14 @@ const calendarOptions = ref({
     const title = window.prompt('Event title:')
     if (!title) return
     const payload = { title, start: info.dateStr, end: info.dateStr }
+    console.log('Creating event with payload:', payload)
     try {
-      await api.post('/events', payload)
+      const response = await api.post('/events', payload)
+      console.log('Event created:', response)
       await loadEvents()
     } catch (e) {
-      console.error(e)
-      alert('Failed to create event')
+      console.error('Failed to create event:', e.response?.data || e.message)
+      alert('Failed to create event: ' + (e.response?.data?.error || e.message))
     }
   },
   eventClick: async (info) => {
@@ -52,17 +54,18 @@ const calendarOptions = ref({
 async function loadEvents() {
   try {
     const events = await api.get('/events')
+    console.log('Events loaded:', events)
     // FullCalendar expects id, title, start, end, color (optional)
     calendarOptions.value.events = events.map(e => ({
       id: String(e.id),
       title: e.title,
       start: e.start,
       end: e.end || e.start,
-      color: e.color,
+      color: e.color || '#3498db',
       extendedProps: { description: e.description }
     }))
   } catch (e) {
-    console.error('Failed to load events', e)
+    console.error('Failed to load events:', e.response?.data || e.message)
   }
 }
 
@@ -70,12 +73,13 @@ async function updateEventTime(event) {
   const id = event.id
   const start = event.start ? event.start.toISOString() : null
   const end = event.end ? event.end.toISOString() : start
+  console.log('Updating event:', { id, start, end })
   try {
     await api.put(`/events/${id}`, { start, end })
     await loadEvents()
   } catch (e) {
-    console.error(e)
-    alert('Failed to update event')
+    console.error('Failed to update event:', e.response?.data || e.message)
+    alert('Failed to update event: ' + (e.response?.data?.error || e.message))
   }
 }
 
