@@ -1,9 +1,3 @@
-<template>
-  <div class="calendar-wrapper">
-    <FullCalendar :options="calendarOptions" />
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
@@ -11,8 +5,6 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import api from '@/services/api'
-
-
 
 const calendarOptions = ref({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -91,16 +83,37 @@ onMounted(() => {
   loadEvents()
 })
 </script>
-<!-- 
+
+<template>
+  <div class="reservation-page">
+    <div class="calendar-wrapper">
+      <h2>Rezervēšana</h2>
+      <FullCalendar :options="calendarOptions" />
+    </div>
+  </div>
+</template>
+
 <style scoped>
+.reservation-page {
+  min-height: 100vh;
+  background-color: #1e3a5f;
+  padding: 100px 20px 40px;
+  margin-top: 0;
+}
+
 .calendar-wrapper {
   width: 100%;
   max-width: 1100px;
-  margin: 120px auto 40px; /* leave space for fixed nav */
+  margin: 0 auto;
   background: white;
-  padding: 16px;
+  padding: 24px;
   border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
-</style> -->
 
+.calendar-wrapper h2 {
+  color: #003366;
+  margin-bottom: 24px;
+  font-size: 2rem;
+}
+</style>

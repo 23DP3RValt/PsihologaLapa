@@ -51,3 +51,4 @@ onMounted(() => { load() })
 .desc { margin-top: 6px }
 .error { color: #a00 }
 </style>
+
