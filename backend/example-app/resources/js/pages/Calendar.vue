@@ -50,3 +50,5 @@ export default {
 }
 </script>
 
+<!-- lai atvētru datubāzi -->
+<!-- & 'C:\Program Files\mysql\mysql-commercial-9.5.0-winx64\bin\mysql.exe' -u root -pSQLMYRValters2008 psihologalapa -e "SELECT * FROM events;" -->

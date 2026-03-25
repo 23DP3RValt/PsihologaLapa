@@ -27,7 +27,9 @@ onMounted(async () => {
       <a href="#info"><button>Lasāmresursi</button></a>
       <a href="#parmani"><button>Par mani</button></a>
       <a href="#kontakti"><button>Kontakti</button></a>
-      <button class="register-btn">Reģistrēties</button>
+      <router-link to="/registresana" custom v-slot="{ navigate, isActive }">
+        <button class="register-btn" @click="navigate" :class="{ active: isActive}">Reģistrēties</button>
+      </router-link>
     </div>
   </nav>
   
