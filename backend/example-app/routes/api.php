@@ -18,4 +18,6 @@ Route::get('/events', [EventController::class, 'index']); // Public
 Route::post('/events', [EventController::class, 'store']);
 Route::put('/events/{id}', [EventController::class, 'update']);
 Route::delete('/events/{id}', [EventController::class, 'destroy']);
-Route::post('/register-user', [AuthController::class, 'register']);
+Route::post('/register-user', [AuthController::class, 'registerUser']);
+Route::post('/register-psychologist', [AuthController::class, 'registerPsychologist']);
+Route::post('/login', [AuthController::class, 'login']);

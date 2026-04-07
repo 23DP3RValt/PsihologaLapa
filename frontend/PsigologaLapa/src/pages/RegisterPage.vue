@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import axios from 'axios'
 
 const name = ref('')
@@ -12,41 +12,24 @@ const personasKods = ref('')
 const talrunis = ref('')
 
 const errorMessage = ref('')
+const successMessage = ref('')
 
-// Email validation
-const isValidEmail = computed(() => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return regex.test(email.value)
-})
-
-// Password rules
+const isValidEmail = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value))
 const hasLowercase = computed(() => /[a-z]/.test(password.value))
 const hasUppercase = computed(() => /[A-Z]/.test(password.value))
 const hasNumber = computed(() => /[0-9]/.test(password.value))
 const hasLength = computed(() => password.value.length >= 8)
 
 const isValidPassword = computed(() => {
-  return hasLowercase.value &&
-         hasUppercase.value &&
-         hasNumber.value &&
-         hasLength.value
+  return hasLowercase.value && hasUppercase.value && hasNumber.value && hasLength.value
 })
 
-// Password match
 const passwordsMatch = computed(() => {
   return password.value === confirmPassword.value && password.value !== ''
 })
 
-// Phone validation (8 digits)
-const isValidPhone = computed(() => {
-  return /^[0-9]{8}$/.test(talrunis.value)
-})
-
-// Personas kods validācija 
-const isValidPersonasKods = computed(() => {
-  const regex = /^[0-9]{6}-[0-9]{5}$/
-  return regex.test(personasKods.value)
-})
+const isValidPhone = computed(() => /^[0-9]{8}$/.test(talrunis.value))
+const isValidPersonasKods = computed(() => /^[0-9]{6}-[0-9]{5}$/.test(personasKods.value))
 
 const formatPersonasKods = () => {
   let value = personasKods.value.replace(/\D/g, '')
@@ -58,34 +41,47 @@ const formatPersonasKods = () => {
   personasKods.value = value
 }
 
-
-// Required fields check
 const allFieldsFilled = computed(() => {
-  return name.value &&
-         surname.value &&
-         email.value &&
-         password.value &&
-         confirmPassword.value &&
-         birthdate.value &&
-         personasKods.value &&
-         talrunis.value
+  return (
+    name.value &&
+    surname.value &&
+    email.value &&
+    password.value &&
+    confirmPassword.value &&
+    birthdate.value &&
+    personasKods.value &&
+    talrunis.value
+  )
 })
 
-// Final validation
 const isFormValid = computed(() => {
-  return allFieldsFilled.value &&
-         isValidEmail.value &&
-         isValidPassword.value &&
-         passwordsMatch.value &&
-         isValidPhone.value &&
-         isValidPersonasKods.value
+  return (
+    allFieldsFilled.value &&
+    isValidEmail.value &&
+    isValidPassword.value &&
+    passwordsMatch.value &&
+    isValidPhone.value &&
+    isValidPersonasKods.value
+  )
 })
+
+const resetForm = () => {
+  name.value = ''
+  surname.value = ''
+  email.value = ''
+  password.value = ''
+  confirmPassword.value = ''
+  birthdate.value = ''
+  personasKods.value = ''
+  talrunis.value = ''
+}
 
 const submitForm = async () => {
-  console.log("SUBMIT CLICKED")
+  errorMessage.value = ''
+  successMessage.value = ''
 
   if (!isFormValid.value) {
-    errorMessage.value = "Lūdzu aizpildi visus laukus pareizi!"
+    errorMessage.value = 'Ludzu aizpildi visus laukus pareizi.'
     return
   }
 
@@ -101,38 +97,34 @@ const submitForm = async () => {
       talrunis: talrunis.value
     })
 
-    alert("Saglabāts datubāzē!")
-
-    // clear form
-    name.value = ''
-    surname.value = ''
-    email.value = ''
-    password.value = ''
-    confirmPassword.value = ''
-    birthdate.value = ''
-    personasKods.value = ''
-    talrunis.value = ''
-
+    successMessage.value = 'Klienta profils veiksmigi saglabats.'
+    resetForm()
   } catch (error) {
     if (error.response) {
-      console.log(error.response.data)
-    } else {
-      console.log(error)
+      errorMessage.value = error.response.data.message || 'Neizdevas saglabat datus.'
+      return
     }
+
+    errorMessage.value = 'Savienojuma kluda.'
   }
 }
 </script>
 
 <template>
   <form @submit.prevent="submitForm" class="registration">
-    <div class="form-group">
-      <label>Vārds</label>
-      <input v-model="name" type="text" placeholder="Vārds" />
+    <div class="intro">
+      <h1>Klienta registracija</h1>
+      <p>Si forma ir paredzeta tikai klientiem. Psihologa konts sistema ir viens.</p>
     </div>
 
     <div class="form-group">
-      <label>Uzvārds</label>
-      <input v-model="surname" type="text" placeholder="Uzvārds" />
+      <label>Vards</label>
+      <input v-model="name" type="text" placeholder="Vards" />
+    </div>
+
+    <div class="form-group">
+      <label>Uzvards</label>
+      <input v-model="surname" type="text" placeholder="Uzvards" />
     </div>
 
     <div class="form-group">
@@ -146,68 +138,63 @@ const submitForm = async () => {
     </div>
 
     <div class="rules">
-      <p :class="{ valid: hasLowercase, invalid: !hasLowercase }">
-        Mazais burts
-      </p>
-      <p :class="{ valid: hasUppercase, invalid: !hasUppercase }">
-        Lielais burts
-      </p>
-      <p :class="{ valid: hasNumber, invalid: !hasNumber }">
-        Skaitlis
-      </p>
-      <p :class="{ valid: hasLength, invalid: !hasLength }">
-        Vismaz 8 simboli
-      </p>
+      <p :class="{ valid: hasLowercase, invalid: !hasLowercase }">Mazais burts</p>
+      <p :class="{ valid: hasUppercase, invalid: !hasUppercase }">Lielais burts</p>
+      <p :class="{ valid: hasNumber, invalid: !hasNumber }">Skaitlis</p>
+      <p :class="{ valid: hasLength, invalid: !hasLength }">Vismaz 8 simboli</p>
     </div>
 
     <div class="form-group">
-      <label>Atkārtot paroli</label>
+      <label>Atkartot paroli</label>
       <input v-model="confirmPassword" type="password" />
     </div>
 
-    <p v-if="confirmPassword && !passwordsMatch" class="invalid">
-      Paroles nesakrīt
-    </p>
+    <p v-if="confirmPassword && !passwordsMatch" class="invalid">Paroles nesakrit.</p>
 
     <div class="form-group">
-      <label>Dzimšanas datums</label>
+      <label>Dzimsanas datums</label>
       <input v-model="birthdate" type="date" />
     </div>
 
     <div class="form-group">
       <label>Personas kods</label>
-      <input v-model="personasKods" @input="formatPersonasKods" type="text"/>
+      <input v-model="personasKods" @input="formatPersonasKods" type="text" />
       <p v-if="personasKods && !isValidPersonasKods" class="invalid">
-      Personas kodam jābūt formātā XXXXXX-XXXXX
-    </p>
+        Personas kodam jabut formata XXXXXX-XXXXX
+      </p>
     </div>
-    
-    <div class="form-group">
-      <label for="">Talrunis</label>
-      <input type="text" v-model="talrunis"> 
-    </div>
-    <p v-if="errorMessage" class="error">
-      {{ errorMessage }}
-    </p>
 
-    <button type="submit" :disabled="!isFormValid">
-      Submit
-    </button>
+    <div class="form-group">
+      <label>Talrunis</label>
+      <input v-model="talrunis" type="text" />
+    </div>
+
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <p v-if="successMessage" class="success">{{ successMessage }}</p>
+
+    <button type="submit" :disabled="!isFormValid">Registreties</button>
   </form>
 </template>
 
 <style scoped>
 .registration {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  padding-top: 6%;
+  gap: 16px;
+  padding: 120px 24px 48px;
+  width: min(100%, 420px);
+  margin: 0 auto;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 300px;
+.intro h1,
+.intro p {
+  margin: 0;
+}
+
+.intro {
+  display: grid;
+  gap: 8px;
 }
 
 .form-group {
@@ -247,6 +234,11 @@ button:disabled {
 
 .error {
   color: red;
+  font-weight: bold;
+}
+
+.success {
+  color: #027a48;
   font-weight: bold;
 }
 </style>

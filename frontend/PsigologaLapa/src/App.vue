@@ -5,9 +5,9 @@ import api from '@/services/api'
 onMounted(async () => {
   try {
     const response = await api.get('/health')
-    console.log('✅ Connected to Laravel!', response)
+    console.log('Connected to Laravel!', response)
   } catch (error) {
-    console.error('❌ Connection failed:', error)
+    console.error('Connection failed:', error)
   }
 })
 </script>
@@ -15,29 +15,31 @@ onMounted(async () => {
 <template>
   <nav class="nav">
     <div class="logo">
-      <h2><b>Sporta Psiholoģija</b></h2>
+      <h2><b>Sporta Psihologija</b></h2>
     </div>
     <div class="navButton">
       <router-link to="/" custom v-slot="{ navigate, isActive }">
-        <button @click="navigate" :class="{ active: isActive }">Sākums</button>
+        <button @click="navigate" :class="{ active: isActive }">Sakums</button>
       </router-link>
       <router-link to="/rezervesana" custom v-slot="{ navigate, isActive }">
-        <button @click="navigate" :class="{ active: isActive }">Rezervēšana</button>
+        <button @click="navigate" :class="{ active: isActive }">Rezervesana</button>
       </router-link>
-      <a href="#info"><button>Lasāmresursi</button></a>
+      <a href="#info"><button>Lasamresursi</button></a>
       <a href="#parmani"><button>Par mani</button></a>
       <a href="#kontakti"><button>Kontakti</button></a>
       <router-link to="/registresana" custom v-slot="{ navigate, isActive }">
-        <button class="register-btn" @click="navigate" :class="{ active: isActive}">Reģistrēties</button>
+        <button class="register-btn" @click="navigate" :class="{ active: isActive }">Registreties</button>
+      </router-link>
+      <router-link to="/login" custom v-slot="{ navigate, isActive }">
+        <button @click="navigate" :class="{ active: isActive }">Pieslegties</button>
       </router-link>
     </div>
   </nav>
-  
+
   <router-view />
 </template>
 
 <style scoped>
-/* Navigation */
 .nav {
   height: 80px;
   width: 100vw;
@@ -52,7 +54,7 @@ onMounted(async () => {
   top: 0;
   left: 0;
   z-index: 1000;
-  font-family: "Quicksand", sans-serif;
+  font-family: 'Quicksand', sans-serif;
 }
 
 .logo h2 {
@@ -83,7 +85,7 @@ onMounted(async () => {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: "Quicksand", sans-serif;
+  font-family: 'Quicksand', sans-serif;
 }
 
 .navButton button:hover {
@@ -98,7 +100,7 @@ onMounted(async () => {
 }
 
 .register-btn {
-  background: linear-gradient(135deg, #FF9933 0%, #FF3300 100%) !important;
+  background: linear-gradient(135deg, #ff9933 0%, #ff3300 100%) !important;
   color: white !important;
   font-weight: 600 !important;
   padding: 10px 24px !important;
@@ -106,13 +108,12 @@ onMounted(async () => {
 }
 
 .register-btn:hover {
-  background: linear-gradient(135deg, #FF3300 0%, #FF9933 100%) !important;
+  background: linear-gradient(135deg, #ff3300 0%, #ff9933 100%) !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(255, 51, 0, 0.3) !important;
   color: white !important;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .nav {
     height: auto;
@@ -155,35 +156,3 @@ onMounted(async () => {
   }
 }
 </style>
-    
-    <!-- <div id="sakums" class="sakums">
-      <div class="hero-content">
-        <div class="hero-text">
-          <h1>KĀ KOGNITĪVIE PROCESI SAISTĪTI<br>AR FIZISKO VEIKTSPĒJU?</h1>
-          <h2>LATVIJĀ NEBIJIS PĒTĪJUMS<br>SPORTA PSIHOLOĢIJĀ</h2>
-          <a href="#registrs" class="hero-btn">PIESAKIES DALĪBAI PĒTĪJUMĀ</a>
-        </div>
-      </div>
-    </div>
-    
-    <div id="rezervet" class="rezervet">
-      <Calendar />
-    </div>
-    <div id="info" class="info">
-      <EventsList />
-    </div>
-    <div id="parmani" class="parmani">
-      
-    </div>
-    <div id="kontakti" class="kontakti">
-      <form action="Controler.php">
-        <label for="mam">Label <br></label>
-        <input type="text" name="user" placeholder="Username"> <br>
-        <input type="password" name="password" placeholder="Password"> <br>
-        <input type="submit" name="submit">
-        <a href="/side.html"><button type="button">dd</button></a>
-      </form>
-    </div>
-  </body>
-</template> -->
-

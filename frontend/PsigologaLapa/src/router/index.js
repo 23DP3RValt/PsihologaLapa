@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
 import ReservationPage from '@/pages/ReservationPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
+
 const routes = [
   {
     path: '/',
@@ -17,6 +18,21 @@ const routes = [
     path: '/registresana',
     name: 'registresana',
     component: RegisterPage
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('../pages/Login.vue')
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('../pages/Dashboard.vue')
+  },
+  {
+    path: '/psihologs',
+    name: 'psychologist-dashboard',
+    component: () => import('../pages/PsychologistDashboard.vue')
   }
 ]
 
@@ -26,9 +42,9 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
-    } else {
-      return { top: 0 }
     }
+
+    return { top: 0 }
   }
 })
 

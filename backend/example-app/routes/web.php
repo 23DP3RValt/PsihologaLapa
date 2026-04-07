@@ -14,4 +14,5 @@ Route::get('/calendar', function () {
     return view('app'); // or inertia render if using Inertia
 });
 
-Route::post('/register-user', [AuthController::class, 'register']);
+Route::post('/register-user', [AuthController::class, 'registerUser']);
+Route::post('/register-psychologist', [AuthController::class, 'registerPsychologist']);
