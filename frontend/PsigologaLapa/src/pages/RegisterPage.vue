@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import axios from 'axios'
 
 const name = ref('')
 const surname = ref('')
@@ -77,27 +78,48 @@ const isFormValid = computed(() => {
          isValidPassword.value &&
          passwordsMatch.value &&
          isValidPhone.value &&
-         isValidPersonasKods
+         isValidPersonasKods.value
 })
 
-// Submit
-const submitForm = () => {
+const submitForm = async () => {
+  console.log("SUBMIT CLICKED")
+
   if (!isFormValid.value) {
     errorMessage.value = "Lūdzu aizpildi visus laukus pareizi!"
     return
   }
 
-  errorMessage.value = ''
-  alert('Form submitted successfully!')
+  try {
+    await axios.post('http://127.0.0.1:8000/api/register-user', {
+      name: name.value,
+      surname: surname.value,
+      email: email.value,
+      password: password.value,
+      password_confirmation: confirmPassword.value,
+      birthdate: birthdate.value,
+      personas_kods: personasKods.value,
+      talrunis: talrunis.value
+    })
 
-  name.value = ''
-  surname.value = ''
-  email.value = ''
-  password.value = ''
-  confirmPassword.value = ''
-  birthdate.value = ''
-  personasKods.value = ''
-  talrunis.value = ''
+    alert("Saglabāts datubāzē!")
+
+    // clear form
+    name.value = ''
+    surname.value = ''
+    email.value = ''
+    password.value = ''
+    confirmPassword.value = ''
+    birthdate.value = ''
+    personasKods.value = ''
+    talrunis.value = ''
+
+  } catch (error) {
+    if (error.response) {
+      console.log(error.response.data)
+    } else {
+      console.log(error)
+    }
+  }
 }
 </script>
 
@@ -163,10 +185,10 @@ const submitForm = () => {
     <div class="form-group">
       <label for="">Talrunis</label>
       <input type="text" v-model="talrunis"> 
-      <p v-if="errorMessage" class="error">
-        {{ errorMessage }}
-      </p>
     </div>
+    <p v-if="errorMessage" class="error">
+      {{ errorMessage }}
+    </p>
 
     <button type="submit" :disabled="!isFormValid">
       Submit

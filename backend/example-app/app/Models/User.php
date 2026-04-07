@@ -19,8 +19,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'surname',
         'email',
         'password',
+        'birthdate',
+        'personas_kods',
+        'talrunis'
     ];
 
     /**
@@ -45,8 +49,4 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-}
-
-class Psychologist extends Model {
-    protected $fillable = ['name', 'email', 'specialization', 'bio'];
 }
