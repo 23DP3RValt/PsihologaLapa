@@ -1,11 +1,19 @@
+<script setup>
+const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
+const user = authData.user || {}
+</script>
+
 <template>
   <section class="dashboard">
     <div class="card">
       <p class="eyebrow">Client dashboard</p>
-      <h1>Laipni ludzam klienta paneli</h1>
+      <h1>Sveicināts, {{ user.name || 'klients' }}</h1>
       <p>
-        Seit nonak regularie klienti pec veiksmigas pieslegsanas. Te var turpinat
-        darbu ar rezervacijam un citu klienta informaciju.
+        Tu esi ielogojies kā <strong>{{ user.email || '...' }}</strong>.
+      </p>
+      <p>
+        Te var redzēt sarakstu ar psihologa izveidotajām konsultācijām un pētījumiem.
+        Klikšķini uz <strong>Rezervēšana</strong>, lai izvēlētos brīvu laiku un pievienotu piebildes.
       </p>
     </div>
   </section>
@@ -41,7 +49,7 @@ h1 {
 }
 
 p {
-  margin: 0;
-  line-height: 1.6;
+  margin: 0 0 12px;
+  line-height: 1.7;
 }
 </style>

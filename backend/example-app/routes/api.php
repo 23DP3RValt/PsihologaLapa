@@ -4,10 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
 Route::get('/health', function () {
     return response()->json(['status' => 'ok']);
 });
@@ -15,9 +11,17 @@ Route::get('/health', function () {
 use App\Http\Controllers\Api\EventController;
 
 Route::get('/events', [EventController::class, 'index']); // Public
-Route::post('/events', [EventController::class, 'store']);
-Route::put('/events/{id}', [EventController::class, 'update']);
-Route::delete('/events/{id}', [EventController::class, 'destroy']);
 Route::post('/register-user', [AuthController::class, 'registerUser']);
 Route::post('/register-psychologist', [AuthController::class, 'registerPsychologist']);
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/events', [EventController::class, 'store']);
+    Route::post('/events/{id}/signup', [EventController::class, 'signup']);
+    Route::put('/events/{id}', [EventController::class, 'update']);
+    Route::delete('/events/{id}', [EventController::class, 'destroy']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+});

@@ -6,80 +6,72 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import api from '@/services/api'
 
+const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
+const isClient = authData.role === 'client'
+
 const calendarOptions = ref({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
-  editable: true,
-  selectable: true,
+  editable: false,
+  selectable: false,
   events: [],
   headerToolbar: {
     left: 'prev,next today',
     center: 'title',
     right: 'dayGridMonth,timeGridWeek,timeGridDay'
   },
-  dateClick: async (info) => {
-    const title = window.prompt('Event title:')
-    if (!title) return
-    const payload = { title, start: info.dateStr, end: info.dateStr }
-    console.log('Creating event with payload:', payload)
+  eventClick: async (info) => {
+    const event = info.event
+    const booked = event.extendedProps?.is_booked
+    const eventType = event.extendedProps?.event_type || 'pasākums'
+
+    if (booked) {
+      alert(`Šis ${eventType} jau ir aizņemts. Pieteicies: ${event.extendedProps?.client_name || '----'}`)
+      return
+    }
+
+    if (!isClient) {
+      alert('Tikai klienti var pieteikties konsultācijām un pētījumiem.')
+      return
+    }
+
+    const clientNote = window.prompt('Pievieno piebildi pieteikumam (pēc izvēles):')
+    if (clientNote === null) {
+      return
+    }
+
     try {
-      const response = await api.post('/events', payload)
-      console.log('Event created:', response)
+      await api.post(`/events/${event.id}/signup`, {
+        client_note: clientNote.trim() || null
+      })
+      alert('Jūsu pieteikums ir saglabāts. Psihologs to redzēs blakus.')
       await loadEvents()
     } catch (e) {
-      console.error('Failed to create event:', e.response?.data || e.message)
-      alert('Failed to create event: ' + (e.response?.data?.error || e.message))
+      console.error('Signup failed:', e.response?.data || e.message)
+      alert('Neizdevās pieteikties: ' + (e.response?.data?.error || e.message))
     }
-  },
-  eventClick: async (info) => {
-    const id = info.event.id
-    if (window.confirm('Delete this event?')) {
-      try {
-        await api.delete(`/events/${id}`)
-        await loadEvents()
-      } catch (e) {
-        console.error(e)
-        alert('Failed to delete event')
-      }
-    }
-  },
-  eventDrop: async (info) => {
-    await updateEventTime(info.event)
-  },
-  eventResize: async (info) => {
-    await updateEventTime(info.event)
   }
 })
 
 async function loadEvents() {
   try {
     const events = await api.get('/events')
-    console.log('Events loaded:', events)
-    // FullCalendar expects id, title, start, end, color (optional)
-    calendarOptions.value.events = events.map(e => ({
+    calendarOptions.value.events = events.map((e) => ({
       id: String(e.id),
-      title: e.title,
+      title: `${e.title} (${e.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija'})`,
       start: e.start,
       end: e.end || e.start,
-      color: e.color || '#3498db',
-      extendedProps: { description: e.description }
+      color: e.is_booked ? '#d9534f' : e.color || '#3498db',
+      extendedProps: {
+        description: e.description,
+        event_type: e.event_type,
+        is_booked: e.is_booked,
+        client_name: e.client_name
+      }
     }))
   } catch (e) {
     console.error('Failed to load events:', e.response?.data || e.message)
-  }
-}
-
-async function updateEventTime(event) {
-  const id = event.id
-  const start = event.start ? event.start.toISOString() : null
-  const end = event.end ? event.end.toISOString() : start
-  console.log('Updating event:', { id, start, end })
-  try {
-    await api.put(`/events/${id}`, { start, end })
-    await loadEvents()
-  } catch (e) {
-    console.error('Failed to update event:', e.response?.data || e.message)
-    alert('Failed to update event: ' + (e.response?.data?.error || e.message))
+    alert('Nevar ielādēt pieejamos laikus. Pārbaudi serveri.')
   }
 }
 
@@ -91,7 +83,8 @@ onMounted(() => {
 <template>
   <div class="reservation-page">
     <div class="calendar-wrapper">
-      <h2>Rezervēšana</h2>
+      <h2>Rezervē konsultāciju vai pētījumu</h2>
+      <p class="subtitle">Klikšķini uz atvērtā laika, lai pieteiktos. Ja laiks ir aizņemts, tas parādīsies sarkans.</p>
       <FullCalendar :options="calendarOptions" />
     </div>
   </div>
@@ -117,7 +110,12 @@ onMounted(() => {
 
 .calendar-wrapper h2 {
   color: #003366;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   font-size: 2rem;
+}
+
+.subtitle {
+  color: #4f5c72;
+  margin-bottom: 20px;
 }
 </style>

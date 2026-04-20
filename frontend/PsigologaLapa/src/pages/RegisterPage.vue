@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
-import axios from 'axios'
+import { useRouter } from 'vue-router'
+import api from '@/services/api'
 
 const name = ref('')
 const surname = ref('')
@@ -76,6 +77,8 @@ const resetForm = () => {
   talrunis.value = ''
 }
 
+const router = useRouter()
+
 const submitForm = async () => {
   errorMessage.value = ''
   successMessage.value = ''
@@ -86,7 +89,7 @@ const submitForm = async () => {
   }
 
   try {
-    await axios.post('http://127.0.0.1:8000/api/register-user', {
+    const response = await api.post('/register-user', {
       name: name.value,
       surname: surname.value,
       email: email.value,
@@ -97,8 +100,15 @@ const submitForm = async () => {
       talrunis: talrunis.value
     })
 
+    const authPayload = {
+      ...response,
+      token: response.token
+    }
+
+    localStorage.setItem('authUser', JSON.stringify(authPayload))
     successMessage.value = 'Klienta profils veiksmigi saglabats.'
     resetForm()
+    router.push('/dashboard')
   } catch (error) {
     if (error.response) {
       errorMessage.value = error.response.data.message || 'Neizdevas saglabat datus.'

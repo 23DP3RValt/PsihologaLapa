@@ -30,6 +30,9 @@ onMounted(async () => {
       <router-link to="/registresana" custom v-slot="{ navigate, isActive }">
         <button class="register-btn" @click="navigate" :class="{ active: isActive }">Registreties</button>
       </router-link>
+      <router-link to="/register-psychologist" custom v-slot="{ navigate, isActive }">
+        <button @click="navigate" :class="{ active: isActive }">Psihologa reģistrācija</button>
+      </router-link>
       <router-link to="/login" custom v-slot="{ navigate, isActive }">
         <button @click="navigate" :class="{ active: isActive }">Pieslegties</button>
       </router-link>

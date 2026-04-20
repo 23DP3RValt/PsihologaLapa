@@ -7,7 +7,6 @@ use App\Models\Psychologist;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-
 class AuthController extends Controller
 {
     public function registerUser(Request $request)
@@ -22,20 +21,24 @@ class AuthController extends Controller
             'talrunis' => 'required|digits:8'
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'surname' => $validated['surname'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']), // 🔐
+            'password' => Hash::make($validated['password']),
             'birthdate' => $validated['birthdate'],
             'personas_kods' => $validated['personas_kods'],
             'talrunis' => $validated['talrunis']
         ]);
 
+        $token = $user->createToken('api-token')->plainTextToken;
+
         return response()->json([
             'message' => 'User saved!',
-            'role' => 'client'
-        ]);
+            'role' => 'client',
+            'user' => $user,
+            'token' => $token
+        ], 201);
     }
 
     public function registerPsychologist(Request $request)
@@ -62,11 +65,14 @@ class AuthController extends Controller
             'bio' => $validated['bio'] ?? null,
         ]);
 
+        $token = $psychologist->createToken('api-token')->plainTextToken;
+
         return response()->json([
             'message' => 'Psychologist saved!',
             'role' => 'psychologist',
             'user' => $psychologist,
-        ]);
+            'token' => $token
+        ], 201);
     }
 
     public function login(Request $request)
@@ -81,7 +87,8 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Login successful',
                 'role' => 'client',
-                'user' => $user
+                'user' => $user,
+                'token' => $user->createToken('api-token')->plainTextToken
             ]);
         }
 
@@ -90,12 +97,23 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Login successful',
                 'role' => 'psychologist',
-                'user' => $psychologist
+                'user' => $psychologist,
+                'token' => $psychologist->createToken('api-token')->plainTextToken
             ]);
         }
 
         return response()->json([
             'message' => 'Invalid credentials'
         ], 401);
+    }
+
+    public function logout(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            $user->currentAccessToken()->delete();
+        }
+
+        return response()->json(['message' => 'Logged out']);
     }
 }

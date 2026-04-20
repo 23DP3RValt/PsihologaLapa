@@ -19,7 +19,12 @@ const login = async () => {
       password: password.value
     })
 
-    localStorage.setItem('authUser', JSON.stringify(res.data))
+    const authPayload = {
+      ...res.data,
+      token: res.data.token
+    }
+
+    localStorage.setItem('authUser', JSON.stringify(authPayload))
 
     if (res.data.role === 'psychologist') {
       router.push('/psihologs')
