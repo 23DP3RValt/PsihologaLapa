@@ -1,5 +1,9 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
 import api from '@/services/api'
 
 const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
@@ -15,6 +19,70 @@ const form = reactive({
   color: '#3498db'
 })
 
+const calendarOptions = ref({
+  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+  initialView: 'dayGridMonth',
+  slotLabelFormat: {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  },
+  eventTimeFormat: {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  },
+  editable: true,
+  selectable: true,
+  events: [],
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+  },
+  dateClick: async (info) => {
+    const title = window.prompt('Ievadi konsultācijas nosaukumu:', 'Konsultācija')
+    if (!title) return
+    const eventType = window.prompt('Veids (konsultacija vai petijums):', 'konsultacija')
+    if (!eventType) return
+
+    const payload = {
+      title,
+      event_type: eventType === 'petijums' ? 'petijums' : 'konsultacija',
+      start: info.dateStr,
+      end: info.dateStr,
+      description: ''
+    }
+
+    try {
+      await api.post('/events', payload)
+      await loadEvents()
+      alert('Konsultācija pievienota kalendārā.')
+    } catch (e) {
+      console.error('Failed to create event from calendar:', e.response?.data || e.message)
+      alert('Neizdevās pievienot konsultāciju. Pārbaudi konsoli.')
+    }
+  },
+  eventClick: async (info) => {
+    const event = info.event
+    if (window.confirm('Dzēst šo notikumu?')) {
+      try {
+        await api.delete(`/events/${event.id}`)
+        await loadEvents()
+      } catch (e) {
+        console.error('Delete failed:', e.response?.data || e.message)
+        alert('Neizdevās dzēst notikumu.')
+      }
+    }
+  },
+  eventDrop: async (info) => {
+    await updateEventTime(info.event)
+  },
+  eventResize: async (info) => {
+    await updateEventTime(info.event)
+  }
+})
+
 const totalEvents = computed(() => events.value.length)
 const bookedEvents = computed(() => events.value.filter((event) => event.is_booked).length)
 const openEvents = computed(() => totalEvents.value - bookedEvents.value)
@@ -22,8 +90,34 @@ const openEvents = computed(() => totalEvents.value - bookedEvents.value)
 async function loadEvents() {
   try {
     events.value = await api.get('/events')
+    calendarOptions.value.events = events.value.map((event) => ({
+      id: String(event.id),
+      title: `${event.title} (${event.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija'})`,
+      start: event.start,
+      end: event.end || event.start,
+      color: event.is_booked ? '#d9534f' : event.color || '#3498db',
+      extendedProps: {
+        event_type: event.event_type,
+        is_booked: event.is_booked,
+        client_name: event.client_name || null,
+        description: event.description || ''
+      }
+    }))
   } catch (e) {
     console.error('Could not load events:', e.response?.data || e.message)
+  }
+}
+
+async function updateEventTime(event) {
+  const id = event.id
+  const start = event.start ? event.start.toISOString() : null
+  const end = event.end ? event.end.toISOString() : start
+  try {
+    await api.put(`/events/${id}`, { start, end })
+    await loadEvents()
+  } catch (e) {
+    console.error('Failed to update event time:', e.response?.data || e.message)
+    alert('Neizdevās atjaunināt notikuma laiku.')
   }
 }
 
@@ -95,6 +189,12 @@ onMounted(() => {
         <p><strong>Brīvie laiki:</strong> {{ openEvents }}</p>
         <p><strong>Aizņemtie laiki:</strong> {{ bookedEvents }}</p>
       </div>
+    </div>
+
+    <div class="card calendar-card">
+      <h2>Kalendārs</h2>
+      <p>Klikšķini uz datuma, lai pievienotu jaunu konsultāciju vai pētījumu tieši kalendārā.</p>
+      <FullCalendar :options="calendarOptions" />
     </div>
 
     <div class="card form-card">
@@ -173,12 +273,23 @@ onMounted(() => {
 
 .dashboard-card,
 .form-card,
-.table-card {
+.table-card,
+.calendar-card {
   width: min(100%, 1100px);
   padding: 28px;
   border-radius: 24px;
   background: white;
   box-shadow: 0 18px 45px rgba(0, 51, 102, 0.08);
+}
+
+.calendar-card {
+  display: grid;
+  gap: 16px;
+}
+
+.calendar-card .fc {
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .eyebrow {
