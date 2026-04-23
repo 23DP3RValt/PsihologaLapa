@@ -17,7 +17,6 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'birthdate' => 'required|date',
-            'personas_kods' => 'required|regex:/^[0-9]{6}-[0-9]{5}$/',
             'talrunis' => 'required|digits:8'
         ]);
 
@@ -27,7 +26,6 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'birthdate' => $validated['birthdate'],
-            'personas_kods' => $validated['personas_kods'],
             'talrunis' => $validated['talrunis']
         ]);
 

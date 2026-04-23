@@ -9,7 +9,6 @@ const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const birthdate = ref('')
-const personasKods = ref('')
 const talrunis = ref('')
 
 const errorMessage = ref('')
@@ -30,17 +29,6 @@ const passwordsMatch = computed(() => {
 })
 
 const isValidPhone = computed(() => /^[0-9]{8}$/.test(talrunis.value))
-const isValidPersonasKods = computed(() => /^[0-9]{6}-[0-9]{5}$/.test(personasKods.value))
-
-const formatPersonasKods = () => {
-  let value = personasKods.value.replace(/\D/g, '')
-
-  if (value.length > 6) {
-    value = value.slice(0, 6) + '-' + value.slice(6, 11)
-  }
-
-  personasKods.value = value
-}
 
 const allFieldsFilled = computed(() => {
   return (
@@ -50,7 +38,6 @@ const allFieldsFilled = computed(() => {
     password.value &&
     confirmPassword.value &&
     birthdate.value &&
-    personasKods.value &&
     talrunis.value
   )
 })
@@ -61,8 +48,7 @@ const isFormValid = computed(() => {
     isValidEmail.value &&
     isValidPassword.value &&
     passwordsMatch.value &&
-    isValidPhone.value &&
-    isValidPersonasKods.value
+    isValidPhone.value
   )
 })
 
@@ -73,7 +59,6 @@ const resetForm = () => {
   password.value = ''
   confirmPassword.value = ''
   birthdate.value = ''
-  personasKods.value = ''
   talrunis.value = ''
 }
 
@@ -96,7 +81,6 @@ const submitForm = async () => {
       password: password.value,
       password_confirmation: confirmPassword.value,
       birthdate: birthdate.value,
-      personas_kods: personasKods.value,
       talrunis: talrunis.value
     })
 
@@ -164,14 +148,6 @@ const submitForm = async () => {
     <div class="form-group">
       <label>Dzimsanas datums</label>
       <input v-model="birthdate" type="date" />
-    </div>
-
-    <div class="form-group">
-      <label>Personas kods</label>
-      <input v-model="personasKods" @input="formatPersonasKods" type="text" />
-      <p v-if="personasKods && !isValidPersonasKods" class="invalid">
-        Personas kodam jabut formata XXXXXX-XXXXX
-      </p>
     </div>
 
     <div class="form-group">
