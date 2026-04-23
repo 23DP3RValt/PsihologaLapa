@@ -41,7 +41,7 @@ onMounted(async () => {
 
   <router-view />
 </template>
-
+<!--  -->
 <style scoped>
 .nav {
   height: 80px;
