@@ -90,6 +90,7 @@ const submitForm = async () => {
     }
 
     localStorage.setItem('authUser', JSON.stringify(authPayload))
+    window.dispatchEvent(new Event('authUpdated'))
     successMessage.value = 'Klienta profils veiksmigi saglabats.'
     resetForm()
     router.push('/dashboard')

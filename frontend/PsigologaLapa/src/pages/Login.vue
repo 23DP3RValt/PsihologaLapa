@@ -25,6 +25,7 @@ const login = async () => {
     }
 
     localStorage.setItem('authUser', JSON.stringify(authPayload))
+    window.dispatchEvent(new Event('authUpdated'))
 
     if (res.data.role === 'psychologist') {
       router.push('/psihologs')

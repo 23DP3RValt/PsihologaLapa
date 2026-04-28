@@ -1,6 +1,24 @@
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/services/api'
+
+const authUser = ref(JSON.parse(localStorage.getItem('authUser') || '{}'))
+const router = useRouter()
+
+const refreshAuth = () => {
+  authUser.value = JSON.parse(localStorage.getItem('authUser') || '{}')
+}
+
+const isLoggedIn = computed(() => !!authUser.value?.token)
+const isClient = computed(() => authUser.value?.role === 'client')
+const isPsychologist = computed(() => authUser.value?.role === 'psychologist')
+
+const logout = () => {
+  localStorage.removeItem('authUser')
+  refreshAuth()
+  router.push('/')
+}
 
 onMounted(async () => {
   try {
@@ -9,6 +27,14 @@ onMounted(async () => {
   } catch (error) {
     console.error('Connection failed:', error)
   }
+
+  window.addEventListener('storage', refreshAuth)
+  window.addEventListener('authUpdated', refreshAuth)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', refreshAuth)
+  window.removeEventListener('authUpdated', refreshAuth)
 })
 </script>
 
@@ -27,15 +53,32 @@ onMounted(async () => {
       <a href="#info"><button>Lasamresursi</button></a>
       <a href="#parmani"><button>Par mani</button></a>
       <a href="#kontakti"><button>Kontakti</button></a>
-      <router-link to="/registresana" custom v-slot="{ navigate, isActive }">
-        <button class="register-btn" @click="navigate" :class="{ active: isActive }">Registreties</button>
-      </router-link>
-      <router-link to="/register-psychologist" custom v-slot="{ navigate, isActive }">
-        <button @click="navigate" :class="{ active: isActive }">Psihologa reģistrācija</button>
-      </router-link>
-      <router-link to="/login" custom v-slot="{ navigate, isActive }">
-        <button @click="navigate" :class="{ active: isActive }">Pieslegties</button>
-      </router-link>
+
+      <template v-if="isClient">
+        <router-link to="/dashboard" custom v-slot="{ navigate, isActive }">
+          <button @click="navigate" :class="{ active: isActive }">Profils</button>
+        </router-link>
+      </template>
+
+      <template v-else-if="isPsychologist">
+        <router-link to="/psihologs" custom v-slot="{ navigate, isActive }">
+          <button @click="navigate" :class="{ active: isActive }">Psihologa panelis</button>
+        </router-link>
+      </template>
+
+      <template v-if="!isLoggedIn">
+        <router-link to="/registresana" custom v-slot="{ navigate, isActive }">
+          <button class="register-btn" @click="navigate" :class="{ active: isActive }">Registreties</button>
+        </router-link>
+        <router-link to="/register-psychologist" custom v-slot="{ navigate, isActive }">
+          <button @click="navigate" :class="{ active: isActive }">Psihologa reģistrācija</button>
+        </router-link>
+        <router-link to="/login" custom v-slot="{ navigate, isActive }">
+          <button @click="navigate" :class="{ active: isActive }">Pieslegties</button>
+        </router-link>
+      </template>
+
+      <button v-if="isLoggedIn" @click="logout">Izlogoties</button>
     </div>
   </nav>
 

@@ -99,4 +99,51 @@ class PsychologistClientController extends Controller
             'created_at' => $comment->created_at ? $comment->created_at->toDateTimeString() : null,
         ], 201);
     }
+
+    public function clientProfile(Request $request)
+    {
+        $actor = $request->user();
+        if (! $actor instanceof User) {
+            return response()->json(['error' => 'Only clients can access this data.'], 403);
+        }
+
+        $signedEvents = Event::with(['psychologist'])
+            ->where('client_id', $actor->id)
+            ->orderByDesc('start')
+            ->get();
+
+        $comments = PsychologistClientComment::where('client_id', $actor->id)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function (PsychologistClientComment $comment) {
+                return [
+                    'id' => $comment->id,
+                    'comment' => $comment->comment,
+                    'event_id' => $comment->event_id,
+                    'created_at' => $comment->created_at ? $comment->created_at->toDateTimeString() : null,
+                ];
+            });
+
+        return response()->json([
+            'profile' => [
+                'id' => $actor->id,
+                'name' => trim($actor->name . ' ' . $actor->surname),
+                'email' => $actor->email,
+                'talrunis' => $actor->talrunis,
+                'birthdate' => $actor->birthdate,
+                'signed_up_events' => $signedEvents->map(function (Event $event) {
+                    return [
+                        'id' => $event->id,
+                        'title' => $event->title,
+                        'event_type' => $event->event_type,
+                        'start' => $event->start ? $event->start->toDateTimeString() : null,
+                        'end' => $event->end ? $event->end->toDateTimeString() : null,
+                        'psychologist_name' => $event->psychologist?->name,
+                        'client_note' => $event->client_note,
+                    ];
+                })->values(),
+                'psychologist_comments' => $comments,
+            ],
+        ]);
+    }
 }

@@ -28,4 +28,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/psychologist/clients', [PsychologistClientController::class, 'index']);
     Route::post('/psychologist/clients/{client}/comments', [PsychologistClientController::class, 'storeComment']);
+    Route::get('/client/profile', [PsychologistClientController::class, 'clientProfile']);
 });
