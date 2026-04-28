@@ -189,6 +189,11 @@ onMounted(() => {
         <p><strong>Brīvie laiki:</strong> {{ openEvents }}</p>
         <p><strong>Aizņemtie laiki:</strong> {{ bookedEvents }}</p>
       </div>
+      <div class="details">
+        <p><strong>Klientu pārvaldība:</strong>
+          <router-link class="secondary-link" to="/psihologs/clients">Atvērt klientu lapu</router-link>
+        </p>
+      </div>
     </div>
 
     <div class="card calendar-card">

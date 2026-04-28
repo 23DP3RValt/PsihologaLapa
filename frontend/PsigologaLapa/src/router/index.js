@@ -39,6 +39,11 @@ const routes = [
     path: '/psihologs',
     name: 'psychologist-dashboard',
     component: () => import('../pages/PsychologistDashboard.vue')
+  },
+  {
+    path: '/psihologs/clients',
+    name: 'psychologist-clients',
+    component: () => import('../pages/PsychologistClients.vue')
   }
 ]
 

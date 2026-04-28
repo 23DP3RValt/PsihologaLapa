@@ -9,6 +9,7 @@ Route::get('/health', function () {
 });
 
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\PsychologistClientController;
 
 Route::get('/events', [EventController::class, 'index']); // Public
 Route::post('/register-user', [AuthController::class, 'registerUser']);
@@ -24,4 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::get('/psychologist/clients', [PsychologistClientController::class, 'index']);
+    Route::post('/psychologist/clients/{client}/comments', [PsychologistClientController::class, 'storeComment']);
 });
