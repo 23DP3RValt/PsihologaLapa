@@ -66,10 +66,10 @@ class Event extends Model
         $array = parent::toArray();
 
         if ($this->start) {
-            $array['start'] = $this->start->toIso8601String();
+            $array['start'] = $this->start->format('Y-m-d\TH:i:s');
         }
         if ($this->end) {
-            $array['end'] = $this->end->toIso8601String();
+            $array['end'] = $this->end->format('Y-m-d\TH:i:s');
         }
 
         return $array;

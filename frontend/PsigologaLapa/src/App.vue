@@ -15,6 +15,14 @@ const isClient = computed(() => authUser.value?.role === 'client')
 const isPsychologist = computed(() => authUser.value?.role === 'psychologist')
 
 const logout = () => {
+  const confirmed = window.confirm(
+    'Vai tiešām vēlies izlogoties? Lūdzu apstiprini, ka piekrīti iziet no sistēmas.'
+  )
+
+  if (!confirmed) {
+    return
+  }
+
   localStorage.removeItem('authUser')
   refreshAuth()
   router.push('/')

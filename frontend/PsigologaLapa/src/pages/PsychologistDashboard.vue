@@ -41,14 +41,21 @@ const calendarOptions = ref({
     right: 'dayGridMonth,timeGridWeek,timeGridDay'
   },
   dateClick: async (info) => {
-    const title = window.prompt('Ievadi konsultācijas nosaukumu:', 'Konsultācija')
+    const title = window.prompt('Ievadi notikuma nosaukumu:', 'Konsultācija')
     if (!title) return
-    const eventType = window.prompt('Veids (konsultacija vai petijums):', 'konsultacija')
-    if (!eventType) return
+
+    const eventTypeInput = window.prompt('Izvēlies veidu: "konsultacija" vai "petijums"', 'konsultacija')
+    if (!eventTypeInput) return
+
+    const eventType = eventTypeInput.trim().toLowerCase()
+    if (!['konsultacija', 'petijums'].includes(eventType)) {
+      alert('Lūdzu izvēlies "konsultacija" vai "petijums".')
+      return
+    }
 
     const payload = {
       title,
-      event_type: eventType === 'petijums' ? 'petijums' : 'konsultacija',
+      event_type: eventType,
       start: info.dateStr,
       end: info.dateStr,
       description: ''
@@ -110,8 +117,8 @@ async function loadEvents() {
 
 async function updateEventTime(event) {
   const id = event.id
-  const start = event.start ? event.start.toISOString() : null
-  const end = event.end ? event.end.toISOString() : start
+  const start = event.startStr || (event.start ? event.start.toISOString().slice(0, 19) : null)
+  const end = event.endStr || (event.end ? event.end.toISOString().slice(0, 19) : start)
   try {
     await api.put(`/events/${id}`, { start, end })
     await loadEvents()
@@ -216,12 +223,12 @@ onMounted(() => {
         </select>
       </div>
       <div class="form-row">
-        <label>Sākuma datums un laiks</label>
-        <input v-model="form.start" type="datetime-local" />
+        <label>Sākuma datums un laiks (24h formatā)</label>
+        <input v-model="form.start" type="datetime-local" lang="en-GB" />
       </div>
       <div class="form-row">
-        <label>Beigu datums un laiks</label>
-        <input v-model="form.end" type="datetime-local" />
+        <label>Beigu datums un laiks (24h formatā)</label>
+        <input v-model="form.end" type="datetime-local" lang="en-GB" />
       </div>
       <div class="form-row">
         <label>Apraksts</label>
