@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
+import api from '../services/api'
 
 const email = ref('')
 const password = ref('')
@@ -14,20 +14,20 @@ const login = async () => {
   isSubmitting.value = true
 
   try {
-    const res = await axios.post('http://127.0.0.1:8000/api/login', {
+    const data = await api.post('/login', {
       email: email.value,
       password: password.value
     })
 
     const authPayload = {
-      ...res.data,
-      token: res.data.token
+      ...data,
+      token: data.token
     }
 
     localStorage.setItem('authUser', JSON.stringify(authPayload))
     window.dispatchEvent(new Event('authUpdated'))
 
-    if (res.data.role === 'psychologist') {
+    if (data.role === 'psychologist') {
       router.push('/psihologs')
       return
     }
