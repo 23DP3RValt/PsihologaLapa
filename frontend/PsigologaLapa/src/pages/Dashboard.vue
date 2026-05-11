@@ -84,18 +84,14 @@ onMounted(() => {
   padding: 32px;
   border-radius: 24px;
   background: white;
-  box-shadow: 0 16px 42px rgba(0, 51, 102, 0.08);
+  box-shadow: 0 16px 42px rgba(34, 85, 179, 0.08);
 }
 
 .eyebrow {
   margin: 0 0 10px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #006699;
-  font-size: 0.8rem;
-}
-
-h1 {
+  color: var(--color-primary-start);
   margin: 0 0 12px;
 }
 

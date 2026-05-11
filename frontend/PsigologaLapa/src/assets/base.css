@@ -27,11 +27,19 @@
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+  --color-border: rgba(34, 85, 179, 0.12);
+  --color-border-hover: rgba(34, 85, 179, 0.2);
 
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
+  --color-primary-start: #2255B3;
+  --color-primary-end: #1EC4F2;
+  --color-secondary-start: #87CC27;
+  --color-secondary-end: #BDD823;
+  --color-accent: #21A5AE;
+  --color-danger: #DD4125;
+  --color-background: #F3F8FF;
+  --color-surface: #ffffff;
+  --color-heading: #10243E;
+  --color-text: #10243E;
 
   --section-gap: 160px;
 }

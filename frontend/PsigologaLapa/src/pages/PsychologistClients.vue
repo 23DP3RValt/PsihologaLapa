@@ -195,14 +195,14 @@ onMounted(() => {
   padding: 28px;
   border-radius: 24px;
   background: white;
-  box-shadow: 0 18px 45px rgba(0, 51, 102, 0.08);
+  box-shadow: 0 18px 45px rgba(34, 85, 179, 0.12);
 }
 
 .eyebrow {
   margin: 0 0 10px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #d46b08;
+  color: #87CC27;
   font-size: 0.8rem;
 }
 
@@ -211,7 +211,7 @@ onMounted(() => {
 }
 
 .error-message {
-  color: #b42318;
+  color: #DD4125;
   font-weight: 600;
 }
 
@@ -224,8 +224,8 @@ table {
 thead th {
   text-align: left;
   padding: 12px;
-  border-bottom: 2px solid #e5eaf0;
-  color: #003366;
+  border-bottom: 2px solid rgba(34, 85, 179, 0.16);
+  color: var(--color-primary-start);
 }
 
 tbody td {
@@ -241,15 +241,15 @@ textarea {
 button {
   border: none;
   color: white;
-  background: linear-gradient(135deg, #006699 0%, #003366 100%);
+  background: linear-gradient(135deg, #DD4125 0%, #B22F1E 100%);
   cursor: pointer;
   padding: 10px 16px;
 }
 
 .details-button {
   background: transparent;
-  color: #003366;
-  border: 1px solid #003366;
+  color: var(--color-primary-start);
+  border: 1px solid var(--color-primary-start);
 }
 
 section .details-card {

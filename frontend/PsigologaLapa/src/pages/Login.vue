@@ -65,20 +65,13 @@ const login = async () => {
   display: grid;
   place-items: center;
   padding: 120px 24px 40px;
-  background:
-    radial-gradient(circle at top, rgba(0, 102, 153, 0.18), transparent 38%),
-    linear-gradient(180deg, #f5fbff 0%, #eef6f4 100%);
-}
-
-.login-card {
-  width: min(100%, 420px);
-  display: flex;
+  background: linear-gradient(180deg, #2255B3 0%, #1EC4F2 100%);
   flex-direction: column;
   gap: 14px;
   padding: 32px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 18px 45px rgba(0, 51, 102, 0.12);
+  box-shadow: 0 18px 45px rgba(34, 85, 179, 0.12);
 }
 
 .login-card h2,
@@ -98,7 +91,7 @@ button {
   border-radius: 999px;
   padding: 12px 18px;
   color: white;
-  background: linear-gradient(135deg, #006699 0%, #003366 100%);
+  background: linear-gradient(135deg, #DD4125 0%, #B22F1E 100%);
   cursor: pointer;
 }
 
@@ -108,7 +101,7 @@ button:disabled {
 }
 
 .error {
-  color: #b42318;
+  color: #DD4125;
   font-weight: 600;
 }
 </style>

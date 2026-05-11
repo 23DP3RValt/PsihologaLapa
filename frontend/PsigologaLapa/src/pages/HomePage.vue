@@ -52,7 +52,7 @@ onMounted(async () => {
 .sakums {
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
+  background-image: url(C:\Users\Reinis\Documents\PsihologaLapa\frontend\PsigologaLapa\src\components\icons\SmuksHeroFons2.png);
   position: relative;
   display: flex;
   align-items: center;
@@ -72,7 +72,7 @@ onMounted(async () => {
 
 .hero-text {
   text-align: center;
-  color: #003366;
+  color: var(--color-primary-start);
   max-width: 900px;
   margin: 0 auto;
 }
@@ -84,7 +84,7 @@ onMounted(async () => {
   letter-spacing: 1px;
   line-height: 1.3;
   font-family: 'Crimson Pro', serif;
-  color: #003366;
+  color: var(--color-primary-start);
   text-transform: uppercase;
 }
 
@@ -92,7 +92,7 @@ onMounted(async () => {
   font-size: 2.2rem;
   font-weight: 600;
   margin-bottom: 2.5rem;
-  color: #FF3300;
+  color: #DD4125;
   font-family: 'Crimson Pro', serif;
   line-height: 1.3;
   letter-spacing: 1px;
@@ -101,7 +101,7 @@ onMounted(async () => {
 
 .hero-btn {
   display: inline-block;
-  background: linear-gradient(135deg, #FF9933 0%, #FF3300 100%);
+  background: linear-gradient(135deg, #DD4125 0%, #B22F1E 100%);
   color: white;
   padding: 18px 50px;
   font-size: 1.2rem;
@@ -118,7 +118,7 @@ onMounted(async () => {
 }
 
 .hero-btn:hover {
-  background: linear-gradient(135deg, #FF3300 0%, #FF9933 100%);
+  background: linear-gradient(135deg, #B22F1E 0%, #DD4125 100%);
   transform: translateY(-2px);
   box-shadow: 0 15px 30px rgba(255, 51, 0, 0.4);
 }
@@ -139,15 +139,15 @@ onMounted(async () => {
 }
 
 .info {
-  background-color: #2a4d6e;
+  background: linear-gradient(135deg, #87CC27 0%, #BDD823 100%);
 }
 
 .parmani {
-  background-color: #1f3a4b;
+  background: #21A5AE;
 }
 
 .kontakti {
-  background-color: #0b2b4a;
+  background: #2255B3;
 }
 
 .info h3, .parmani h3, .kontakti h3 {

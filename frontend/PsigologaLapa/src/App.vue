@@ -112,8 +112,7 @@ onBeforeUnmount(() => {
 }
 
 .logo h2 {
-  color: #003366;
-  font-size: 1.5rem;
+    color: var(--color-primary-start);
   font-weight: 700;
   margin: 0;
   letter-spacing: 0.5px;
@@ -143,29 +142,25 @@ onBeforeUnmount(() => {
 }
 
 .navButton button:hover {
-  background: rgba(0, 51, 102, 0.05);
-  color: #003366;
-}
+    background: rgba(34, 85, 179, 0.08);
+    color: var(--color-primary-start);
+  }
 
 .navButton button.active {
-  background: rgba(0, 51, 102, 0.1);
-  color: #003366;
-  font-weight: 600;
-}
-
+  background: rgba(34, 85, 179, 0.14);
+  color: var(--color-primary-start);
 .register-btn {
-  background: linear-gradient(135deg, #ff9933 0%, #ff3300 100%) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  padding: 10px 24px !important;
-  box-shadow: 0 4px 10px rgba(255, 51, 0, 0.2);
-}
+    background: linear-gradient(135deg, #DD4125 0%, #B22F1E 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 10px 24px !important;
+    box-shadow: 0 4px 10px rgba(221, 65, 37, 0.25);
+  }
 
-.register-btn:hover {
-  background: linear-gradient(135deg, #ff3300 0%, #ff9933 100%) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(255, 51, 0, 0.3) !important;
-  color: white !important;
+  .register-btn:hover {
+    background: linear-gradient(135deg, #B22F1E 0%, #DD4125 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(221, 65, 37, 0.35) !important;
 }
 
 @media (max-width: 768px) {
@@ -208,5 +203,6 @@ onBeforeUnmount(() => {
   .register-btn {
     padding: 6px 16px !important;
   }
+}
 }
 </style>

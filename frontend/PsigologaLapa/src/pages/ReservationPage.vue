@@ -71,7 +71,7 @@ async function loadEvents() {
       title: `${e.title} (${e.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija'})`,
       start: e.start,
       end: e.end || e.start,
-      color: e.is_booked ? '#d9534f' : e.color || '#3498db',
+      color: e.is_booked ? '#DD4125' : e.color || '#21A5AE',
       extendedProps: {
         description: e.description,
         event_type: e.event_type,
@@ -103,7 +103,7 @@ onMounted(() => {
 <style scoped>
 .reservation-page {
   min-height: 100vh;
-  background-color: #1e3a5f;
+  background: linear-gradient(180deg, #2255B3 0%, #1EC4F2 100%);
   padding: 100px 20px 40px;
   margin-top: 0;
 }
@@ -119,7 +119,7 @@ onMounted(() => {
 }
 
 .calendar-wrapper h2 {
-  color: #003366;
+  color: var(--color-primary-start);
   margin-bottom: 12px;
   font-size: 2rem;
 }

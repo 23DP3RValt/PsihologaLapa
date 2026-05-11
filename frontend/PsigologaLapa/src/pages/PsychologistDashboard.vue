@@ -102,7 +102,7 @@ async function loadEvents() {
       title: `${event.title} (${event.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija'})`,
       start: event.start,
       end: event.end || event.start,
-      color: event.is_booked ? '#d9534f' : event.color || '#3498db',
+      color: event.is_booked ? '#DD4125' : event.color || '#21A5AE',
       extendedProps: {
         event_type: event.event_type,
         is_booked: event.is_booked,
@@ -291,7 +291,7 @@ onMounted(() => {
   padding: 28px;
   border-radius: 24px;
   background: white;
-  box-shadow: 0 18px 45px rgba(0, 51, 102, 0.08);
+  box-shadow: 0 18px 45px rgba(34, 85, 179, 0.12);
 }
 
 .calendar-card {
@@ -352,7 +352,7 @@ button {
   border-radius: 999px;
   padding: 12px 20px;
   color: white;
-  background: linear-gradient(135deg, #006699 0%, #003366 100%);
+  background: linear-gradient(135deg, #DD4125 0%, #B22F1E 100%);
   cursor: pointer;
 }
 
@@ -365,8 +365,8 @@ table {
 thead th {
   text-align: left;
   padding: 12px;
-  border-bottom: 2px solid #e5eaf0;
-  color: #003366;
+  border-bottom: 2px solid rgba(34, 85, 179, 0.16);
+  color: var(--color-primary-start);
 }
 
 tbody td {
@@ -376,7 +376,7 @@ tbody td {
 
 .delete-button {
   border: none;
-  color: #b42318;
+  color: #DD4125;
   background: transparent;
   cursor: pointer;
   font-weight: 700;

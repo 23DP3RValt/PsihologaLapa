@@ -225,7 +225,7 @@ button:disabled {
 }
 
 .success {
-  color: #027a48;
+  color: #87CC27;
   font-weight: bold;
 }
 </style>
