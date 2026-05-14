@@ -116,73 +116,75 @@ onMounted(() => {
 
     <div class="card table-card">
       <h2>Klientu informācija</h2>
-      <table>
-        <thead>
-          <tr class="filter-row">
-            <th></th>
-            <th>
-              <input
-                v-model="nameFilter"
-                class="column-filter"
-                type="search"
-                aria-label="Meklēt pēc vārda"
-                placeholder="Meklēt vārdu"
-              />
-            </th>
-            <th>
-              <input
-                v-model="emailFilter"
-                class="column-filter"
-                type="search"
-                aria-label="Meklēt pēc e-pasta"
-                placeholder="Meklēt e-pastu"
-              />
-            </th>
-            <th>
-              <input
-                v-model="participationFilter"
-                class="column-filter"
-                type="search"
-                aria-label="Meklēt pēc piedalīšanās reižu skaita"
-                placeholder="Skaits"
-              />
-            </th>
-            <th></th>
-            <th></th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>#</th>
-            <th>Vārds</th>
-            <th>E-pasts</th>
-            <th>Piedalījies</th>
-            <th>Jaunākā piezīme</th>
-            <th>Psihologa komentārs</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="client in filteredClients" :key="client.id">
-            <td>{{ client.id }}</td>
-            <td>{{ client.name }}</td>
-            <td>{{ client.email }}</td>
-            <td>{{ client.participation_count }}</td>
-            <td>{{ client.signed_up_events?.[0]?.client_note || '-' }}</td>
-            <td>{{ client.last_comment || '-' }}</td>
-            <td>
-              <button class="details-button" @click="selectClient(client.id)">
-                {{ selectedClientId === client.id ? 'Slēpt detaļas' : 'Skatīt detaļas' }}
-              </button>
-            </td>
-          </tr>
-          <tr v-if="clients.length === 0 && !loading">
-            <td colspan="7">Nav reģistrētu klientu.</td>
-          </tr>
-          <tr v-else-if="filteredClients.length === 0 && !loading">
-            <td colspan="7">Nav klientu, kas atbilst meklēšanai.</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="clients-table-frame">
+        <table>
+          <thead>
+            <tr class="filter-row">
+              <th></th>
+              <th>
+                <input
+                  v-model="nameFilter"
+                  class="column-filter"
+                  type="search"
+                  aria-label="Meklēt pēc vārda"
+                  placeholder="Meklēt vārdu"
+                />
+              </th>
+              <th>
+                <input
+                  v-model="emailFilter"
+                  class="column-filter"
+                  type="search"
+                  aria-label="Meklēt pēc e-pasta"
+                  placeholder="Meklēt e-pastu"
+                />
+              </th>
+              <th>
+                <input
+                  v-model="participationFilter"
+                  class="column-filter"
+                  type="search"
+                  aria-label="Meklēt pēc piedalīšanās reižu skaita"
+                  placeholder="Skaits"
+                />
+              </th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+            <tr class="heading-row">
+              <th>#</th>
+              <th>Vārds</th>
+              <th>E-pasts</th>
+              <th>Piedalījies</th>
+              <th>Jaunākā piezīme</th>
+              <th>Psihologa komentārs</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="client in filteredClients" :key="client.id">
+              <td>{{ client.id }}</td>
+              <td>{{ client.name }}</td>
+              <td>{{ client.email }}</td>
+              <td>{{ client.participation_count }}</td>
+              <td>{{ client.signed_up_events?.[0]?.client_note || '-' }}</td>
+              <td>{{ client.last_comment || '-' }}</td>
+              <td>
+                <button class="details-button" @click="selectClient(client.id)">
+                  {{ selectedClientId === client.id ? 'Slēpt detaļas' : 'Skatīt detaļas' }}
+                </button>
+              </td>
+            </tr>
+            <tr v-if="clients.length === 0 && !loading">
+              <td colspan="7">Nav reģistrētu klientu.</td>
+            </tr>
+            <tr v-else-if="filteredClients.length === 0 && !loading">
+              <td colspan="7">Nav klientu, kas atbilst meklēšanai.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <template v-if="selectedClientId !== null">
@@ -282,13 +284,26 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.clients-table-frame {
+  max-height: 560px;
+  overflow: auto;
+  margin-top: 20px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+}
+
 table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 920px;
 }
 
 thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: white;
   text-align: left;
   padding: 12px;
   border-bottom: 2px solid rgba(34, 85, 179, 0.16);
@@ -296,8 +311,15 @@ thead th {
 }
 
 .filter-row th {
+  top: 0;
+  z-index: 4;
   border-bottom: 0;
   padding-bottom: 4px;
+}
+
+.heading-row th {
+  top: 54px;
+  z-index: 3;
 }
 
 .column-filter {
