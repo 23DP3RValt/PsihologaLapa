@@ -1,12 +1,42 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import api from '@/services/api'
 
 const clients = ref([])
 const selectedClientId = ref(null)
 const commentText = ref('')
+const nameFilter = ref('')
+const emailFilter = ref('')
+const participationFilter = ref('')
 const loading = ref(false)
 const error = ref(null)
+
+const normalizeSearchValue = (value) => {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+const filteredClients = computed(() => {
+  const nameTerm = normalizeSearchValue(nameFilter.value)
+  const emailTerm = normalizeSearchValue(emailFilter.value)
+  const participationTerm = normalizeSearchValue(participationFilter.value)
+
+  if (!nameTerm && !emailTerm && !participationTerm) return clients.value
+
+  return clients.value.filter((client) => {
+    const clientName = normalizeSearchValue(client.name)
+    const clientEmail = normalizeSearchValue(client.email)
+    const participationCount = normalizeSearchValue(client.participation_count)
+
+    return (
+      clientName.includes(nameTerm) &&
+      clientEmail.includes(emailTerm) &&
+      participationCount.includes(participationTerm)
+    )
+  })
+})
 
 const loadClients = async () => {
   loading.value = true
@@ -88,6 +118,39 @@ onMounted(() => {
       <h2>Klientu informācija</h2>
       <table>
         <thead>
+          <tr class="filter-row">
+            <th></th>
+            <th>
+              <input
+                v-model="nameFilter"
+                class="column-filter"
+                type="search"
+                aria-label="Meklēt pēc vārda"
+                placeholder="Meklēt vārdu"
+              />
+            </th>
+            <th>
+              <input
+                v-model="emailFilter"
+                class="column-filter"
+                type="search"
+                aria-label="Meklēt pēc e-pasta"
+                placeholder="Meklēt e-pastu"
+              />
+            </th>
+            <th>
+              <input
+                v-model="participationFilter"
+                class="column-filter"
+                type="search"
+                aria-label="Meklēt pēc piedalīšanās reižu skaita"
+                placeholder="Skaits"
+              />
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
           <tr>
             <th>#</th>
             <th>Vārds</th>
@@ -99,7 +162,7 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="client in clients" :key="client.id">
+          <tr v-for="client in filteredClients" :key="client.id">
             <td>{{ client.id }}</td>
             <td>{{ client.name }}</td>
             <td>{{ client.email }}</td>
@@ -115,17 +178,20 @@ onMounted(() => {
           <tr v-if="clients.length === 0 && !loading">
             <td colspan="7">Nav reģistrētu klientu.</td>
           </tr>
+          <tr v-else-if="filteredClients.length === 0 && !loading">
+            <td colspan="7">Nav klientu, kas atbilst meklēšanai.</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
-    <div
-      class="card details-card"
-      v-if="selectedClientId !== null"
-      v-for="client in clients"
-      :key="client.id + '-details'"
-      v-show="client.id === selectedClientId"
-    >
+    <template v-if="selectedClientId !== null">
+      <div
+        class="card details-card"
+        v-for="client in clients"
+        :key="client.id + '-details'"
+        v-show="client.id === selectedClientId"
+      >
       <h2>Detālas par {{ client.name }}</h2>
       <div class="details-grid">
         <div>
@@ -175,7 +241,8 @@ onMounted(() => {
         <textarea v-model="commentText" placeholder="Raksti komentāru par klientu..."></textarea>
         <button @click.prevent="submitComment(client.id)">Saglabāt komentāru</button>
       </div>
-    </div>
+      </div>
+    </template>
   </section>
 </template>
 
@@ -226,6 +293,25 @@ thead th {
   padding: 12px;
   border-bottom: 2px solid rgba(34, 85, 179, 0.16);
   color: var(--color-primary-start);
+}
+
+.filter-row th {
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+
+.column-filter {
+  width: 100%;
+  min-width: 110px;
+  border: 1px solid #d3dde8;
+  border-radius: 12px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+.column-filter:focus {
+  border-color: var(--color-primary-start);
+  outline: 3px solid rgba(34, 85, 179, 0.12);
 }
 
 tbody td {
@@ -285,4 +371,5 @@ textarea {
   padding: 12px;
   margin-top: 10px;
 }
+
 </style>

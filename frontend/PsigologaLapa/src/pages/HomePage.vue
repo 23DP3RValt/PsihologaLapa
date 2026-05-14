@@ -53,6 +53,9 @@ onMounted(async () => {
   height: 100vh;
   width: 100vw;
   background-image: url(C:\Users\Reinis\Documents\PsihologaLapa\frontend\PsigologaLapa\src\components\icons\SmuksHeroFons2.png);
+  background-position: center;
+  background-size:cover;
+  background-repeat: no-repeat;
   position: relative;
   display: flex;
   align-items: center;
@@ -84,7 +87,7 @@ onMounted(async () => {
   letter-spacing: 1px;
   line-height: 1.3;
   font-family: 'Crimson Pro', serif;
-  color: var(--color-primary-start);
+  color: var(--color-heading);
   text-transform: uppercase;
 }
 

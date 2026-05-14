@@ -7,6 +7,7 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const isSubmitting = ref(false)
+const showPassword = ref(false)
 const router = useRouter()
 
 const login = async () => {
@@ -48,7 +49,21 @@ const login = async () => {
       <p>Ievadi savus datus, un sistema atvers tev atbilstoso paneli.</p>
 
       <input v-model="email" type="email" placeholder="Email" />
-      <input v-model="password" type="password" placeholder="Parole" />
+      <div class="password-field">
+        <input
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Parole"
+        />
+        <button
+          type="button"
+          class="password-toggle"
+          :aria-label="showPassword ? 'Slept paroli' : 'Radit paroli'"
+          @click="showPassword = !showPassword"
+        >
+          {{ showPassword ? 'Slept' : 'Radit' }}
+        </button>
+      </div>
 
       <button type="submit" :disabled="isSubmitting">
         {{ isSubmitting ? 'Notiek ielade...' : 'Pieslegties' }}
@@ -86,6 +101,17 @@ input {
   font-size: 1rem;
 }
 
+.password-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-field input {
+  min-width: 0;
+}
+
 button {
   border: none;
   border-radius: 999px;
@@ -98,6 +124,12 @@ button {
 button:disabled {
   opacity: 0.7;
   cursor: wait;
+}
+
+.password-toggle {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  background: #2255B3;
 }
 
 .error {

@@ -149,6 +149,8 @@ onBeforeUnmount(() => {
 .navButton button.active {
   background: rgba(34, 85, 179, 0.14);
   color: var(--color-primary-start);
+}
+
 .register-btn {
     background: linear-gradient(135deg, #DD4125 0%, #B22F1E 100%) !important;
     color: white !important;
@@ -161,7 +163,7 @@ onBeforeUnmount(() => {
     background: linear-gradient(135deg, #B22F1E 0%, #DD4125 100%) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(221, 65, 37, 0.35) !important;
-}
+  }
 
 @media (max-width: 768px) {
   .nav {
@@ -203,6 +205,5 @@ onBeforeUnmount(() => {
   .register-btn {
     padding: 6px 16px !important;
   }
-}
 }
 </style>

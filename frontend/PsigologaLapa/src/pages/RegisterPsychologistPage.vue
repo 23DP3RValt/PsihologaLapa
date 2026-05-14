@@ -9,6 +9,7 @@ const password = ref('')
 const confirmPassword = ref('')
 const specialization = ref('')
 const bio = ref('')
+const showPassword = ref(false)
 
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -118,7 +119,17 @@ const submitForm = async () => {
 
     <div class="form-group">
       <label>Parole</label>
-      <input v-model="password" type="password" />
+      <div class="password-field">
+        <input v-model="password" :type="showPassword ? 'text' : 'password'" />
+        <button
+          type="button"
+          class="password-toggle"
+          :aria-label="showPassword ? 'Slept paroli' : 'Radit paroli'"
+          @click="showPassword = !showPassword"
+        >
+          {{ showPassword ? 'Slept' : 'Radit' }}
+        </button>
+      </div>
     </div>
 
     <div class="rules">
@@ -130,7 +141,17 @@ const submitForm = async () => {
 
     <div class="form-group">
       <label>Atkārtot paroli</label>
-      <input v-model="confirmPassword" type="password" />
+      <div class="password-field">
+        <input v-model="confirmPassword" :type="showPassword ? 'text' : 'password'" />
+        <button
+          type="button"
+          class="password-toggle"
+          :aria-label="showPassword ? 'Slept paroli' : 'Radit paroli'"
+          @click="showPassword = !showPassword"
+        >
+          {{ showPassword ? 'Slept' : 'Radit' }}
+        </button>
+      </div>
     </div>
 
     <p v-if="confirmPassword && !passwordsMatch" class="invalid">Paroles nesakrīt.</p>
@@ -153,3 +174,82 @@ const submitForm = async () => {
     </button>
   </form>
 </template>
+
+<style scoped>
+.registration {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 120px 24px 48px;
+  width: min(100%, 420px);
+  margin: 0 auto;
+}
+
+.intro h1,
+.intro p {
+  margin: 0;
+}
+
+.intro {
+  display: grid;
+  gap: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+input,
+textarea {
+  padding: 8px;
+  border: 1px solid #000;
+  border-radius: 4px;
+}
+
+.password-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-field input {
+  min-width: 0;
+}
+
+.password-toggle {
+  min-width: 64px;
+  padding: 8px;
+}
+
+.rules {
+  font-size: 14px;
+}
+
+.valid {
+  text-decoration: underline;
+}
+
+.invalid {
+  opacity: 0.6;
+}
+
+button {
+  padding: 10px;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.success {
+  color: #87CC27;
+  font-weight: bold;
+}
+</style>

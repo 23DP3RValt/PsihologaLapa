@@ -1,0 +1,9 @@
+{
+  "eslint.workingDirectories": [
+    {
+      "directory": "frontend/PsigologaLapa",
+      "changeProcessCWD": true
+    }
+  ],
+  "eslint.validate": ["javascript", "vue"]
+}

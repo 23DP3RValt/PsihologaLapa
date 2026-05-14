@@ -10,6 +10,7 @@ const password = ref('')
 const confirmPassword = ref('')
 const birthdate = ref('')
 const talrunis = ref('')
+const showPassword = ref(false)
 
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -129,7 +130,17 @@ const submitForm = async () => {
 
     <div class="form-group">
       <label>Parole</label>
-      <input v-model="password" type="password" />
+      <div class="password-field">
+        <input v-model="password" :type="showPassword ? 'text' : 'password'" />
+        <button
+          type="button"
+          class="password-toggle"
+          :aria-label="showPassword ? 'Slept paroli' : 'Radit paroli'"
+          @click="showPassword = !showPassword"
+        >
+          {{ showPassword ? 'Slept' : 'Radit' }}
+        </button>
+      </div>
     </div>
 
     <div class="rules">
@@ -141,7 +152,17 @@ const submitForm = async () => {
 
     <div class="form-group">
       <label>Atkartot paroli</label>
-      <input v-model="confirmPassword" type="password" />
+      <div class="password-field">
+        <input v-model="confirmPassword" :type="showPassword ? 'text' : 'password'" />
+        <button
+          type="button"
+          class="password-toggle"
+          :aria-label="showPassword ? 'Slept paroli' : 'Radit paroli'"
+          @click="showPassword = !showPassword"
+        >
+          {{ showPassword ? 'Slept' : 'Radit' }}
+        </button>
+      </div>
     </div>
 
     <p v-if="confirmPassword && !passwordsMatch" class="invalid">Paroles nesakrit.</p>
@@ -194,6 +215,22 @@ input {
   padding: 8px;
   border: 1px solid #000;
   border-radius: 4px;
+}
+
+.password-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-field input {
+  min-width: 0;
+}
+
+.password-toggle {
+  min-width: 64px;
+  padding: 8px;
 }
 
 .rules {
