@@ -8,10 +8,13 @@ import api from '@/services/api'
 
 const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
 const isClient = authData.role === 'client'
+const isSmallScreen = () => window.innerWidth <= 640
 
 const calendarOptions = ref({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: 'dayGridMonth',
+  initialView: isSmallScreen() ? 'timeGridDay' : 'dayGridMonth',
+  height: 'auto',
+  dayMaxEvents: true,
   slotLabelFormat: {
     hour: '2-digit',
     minute: '2-digit',
@@ -29,6 +32,9 @@ const calendarOptions = ref({
     left: 'prev,next today',
     center: 'title',
     right: 'dayGridMonth,timeGridWeek,timeGridDay'
+  },
+  windowResize: ({ view }) => {
+    view.calendar.changeView(isSmallScreen() ? 'timeGridDay' : 'dayGridMonth')
   },
   eventClick: async (info) => {
     const event = info.event
@@ -127,5 +133,51 @@ onMounted(() => {
 .subtitle {
   color: #4f5c72;
   margin-bottom: 20px;
+}
+
+.calendar-wrapper :deep(.fc) {
+  min-width: 0;
+}
+
+.calendar-wrapper :deep(.fc-toolbar) {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.calendar-wrapper :deep(.fc-toolbar-title) {
+  font-size: clamp(1.2rem, 4vw, 1.75rem);
+}
+
+@media (max-width: 640px) {
+  .reservation-page {
+    padding: 88px 12px 28px;
+  }
+
+  .calendar-wrapper {
+    padding: 16px;
+  }
+
+  .calendar-wrapper h2 {
+    font-size: 1.45rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .calendar-wrapper :deep(.fc-header-toolbar) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .calendar-wrapper :deep(.fc-toolbar-chunk) {
+    display: flex;
+    justify-content: center;
+  }
+
+  .calendar-wrapper :deep(.fc-button) {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.82rem;
+  }
 }
 </style>

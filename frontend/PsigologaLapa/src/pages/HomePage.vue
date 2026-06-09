@@ -14,7 +14,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div class="sakums">
+    <div id="sakums" class="sakums">
       <div class="hero-content">
         <div class="hero-text">
           <h1>KĀ KOGNITĪVIE PROCESI SAISTĪTI<br>AR FIZISKO VEIKTSPĒJU?</h1>
@@ -24,17 +24,17 @@ onMounted(async () => {
       </div>
     </div>
     
-    <div class="info">
+    <div id="info" class="info">
       <h3>Lasāmresursi</h3>
       <p>Informatīvā informācija par sporta psiholoģiju</p>
     </div>
     
-    <div class="parmani">
+    <div id="parmani" class="parmani">
       <h3>Par mani</h3>
       <p>Informācija par speciālistu</p>
     </div>
     
-    <div class="kontakti">
+    <div id="kontakti" class="kontakti">
       <h3>Kontakti</h3>
       <form action="Controler.php">
         <label for="mam">Label <br></label>
@@ -50,8 +50,8 @@ onMounted(async () => {
 <style scoped>
 /* Hero Section - Sakums */
 .sakums {
-  height: 100vh;
-  width: 100vw;
+  min-height: calc(100vh - 80px);
+  width: 100%;
   background-image: url(C:\Users\Reinis\Documents\PsihologaLapa\frontend\PsigologaLapa\src\components\icons\SmuksHeroFons2.png);
   background-position: center;
   background-size:cover;
@@ -69,7 +69,7 @@ onMounted(async () => {
   z-index: 2;
   width: 100%;
   max-width: 1200px;
-  padding: 0 20px;
+  padding: 0 clamp(16px, 5vw, 32px);
   margin: 0 auto;
 }
 
@@ -81,10 +81,10 @@ onMounted(async () => {
 }
 
 .hero-text h1 {
-  font-size: 3.2rem;
+  font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 700;
   margin-bottom: 1.5rem;
-  letter-spacing: 1px;
+  letter-spacing: 0;
   line-height: 1.3;
   font-family: 'Crimson Pro', serif;
   color: var(--color-heading);
@@ -92,13 +92,13 @@ onMounted(async () => {
 }
 
 .hero-text h2 {
-  font-size: 2.2rem;
+  font-size: clamp(1.35rem, 3.8vw, 2.2rem);
   font-weight: 600;
   margin-bottom: 2.5rem;
   color: #DD4125;
   font-family: 'Crimson Pro', serif;
   line-height: 1.3;
-  letter-spacing: 1px;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -116,8 +116,11 @@ onMounted(async () => {
   border: none;
   cursor: pointer;
   font-family: 'Quicksand', sans-serif;
-  letter-spacing: 1px;
+  letter-spacing: 0;
   text-transform: uppercase;
+  max-width: 100%;
+  text-align: center;
+  white-space: normal;
 }
 
 .hero-btn:hover {
@@ -130,8 +133,9 @@ onMounted(async () => {
 .info,
 .parmani,
 .kontakti {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
+  padding: 80px 20px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,11 +185,14 @@ onMounted(async () => {
 
 @media (max-width: 768px) {
   .sakums {
-    margin-top: auto;
+    min-height: calc(100vh - 72px);
+    margin-top: 72px;
+    background-position: center top;
   }
   
   .hero-text h1 {
     font-size: 2.2rem;
+    margin-bottom: 1rem;
   }
   
   .hero-text h2 {
@@ -197,19 +204,42 @@ onMounted(async () => {
     padding: 14px 40px;
     font-size: 1rem;
   }
+
+  .hero-text br {
+    display: none;
+  }
+
+  .info,
+  .parmani,
+  .kontakti {
+    min-height: auto;
+    padding: 72px 18px;
+    text-align: center;
+  }
+
+  .info h3, .parmani h3, .kontakti h3 {
+    font-size: 2rem;
+  }
 }
 
 @media (max-width: 480px) {
+  .sakums {
+    min-height: calc(100vh - 68px);
+    margin-top: 68px;
+  }
+
   .hero-text h1 {
-    font-size: 1.6rem;
+    font-size: 1.45rem;
+    line-height: 1.2;
   }
   
   .hero-text h2 {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
+    line-height: 1.25;
   }
   
   .hero-btn {
-    padding: 12px 30px;
+    padding: 12px 18px;
     font-size: 0.9rem;
     width: 100%;
     max-width: 300px;

@@ -74,7 +74,8 @@ onMounted(() => {
 .dashboard {
   min-height: calc(100vh - 80px);
   display: grid;
-  place-items: center;
+  place-items: start center;
+  gap: 18px;
   padding: 120px 24px 48px;
   background: linear-gradient(180deg, #fffdf6 0%, #eef7ff 100%);
 }
@@ -109,12 +110,33 @@ p {
 
 .event-list li,
 .comment-list li {
-  padding: 18px 0;
-  border-bottom: 1px solid #eef2f7;
+  padding: 16px;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  margin-top: 12px;
+  overflow-wrap: anywhere;
 }
 
 .event-list li:last-child,
 .comment-list li:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid #eef2f7;
+}
+
+@media (max-width: 640px) {
+  .dashboard {
+    place-items: stretch;
+    gap: 14px;
+    padding: 84px 12px 32px;
+  }
+
+  .card {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .card h1 {
+    font-size: 1.55rem;
+    line-height: 1.2;
+  }
 }
 </style>

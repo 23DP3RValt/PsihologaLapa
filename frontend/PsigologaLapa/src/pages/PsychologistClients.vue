@@ -116,10 +116,33 @@ onMounted(() => {
 
     <div class="card table-card">
       <h2>Klientu informācija</h2>
+      <div class="mobile-filter-panel" aria-label="Klientu filtri">
+        <input
+          v-model="nameFilter"
+          class="column-filter"
+          type="search"
+          aria-label="MeklÄ“t pÄ“c vÄrda"
+          placeholder="MeklÄ“t vÄrdu"
+        />
+        <input
+          v-model="emailFilter"
+          class="column-filter"
+          type="search"
+          aria-label="MeklÄ“t pÄ“c e-pasta"
+          placeholder="MeklÄ“t e-pastu"
+        />
+        <input
+          v-model="participationFilter"
+          class="column-filter"
+          type="search"
+          aria-label="MeklÄ“t pÄ“c piedalÄ«Å¡anÄs reiÅ¾u skaita"
+          placeholder="Skaits"
+        />
+      </div>
       <div class="clients-table-frame">
         <table>
           <thead>
-            <tr class="filter-row">
+            <tr class="filter-row desktop-filter-row">
               <th></th>
               <th>
                 <input
@@ -164,13 +187,13 @@ onMounted(() => {
           </thead>
           <tbody>
             <tr v-for="client in filteredClients" :key="client.id">
-              <td>{{ client.id }}</td>
-              <td>{{ client.name }}</td>
-              <td>{{ client.email }}</td>
-              <td>{{ client.participation_count }}</td>
-              <td>{{ client.signed_up_events?.[0]?.client_note || '-' }}</td>
-              <td>{{ client.last_comment || '-' }}</td>
-              <td>
+              <td data-label="#">{{ client.id }}</td>
+              <td data-label="Vards">{{ client.name }}</td>
+              <td data-label="E-pasts">{{ client.email }}</td>
+              <td data-label="Piedalijies">{{ client.participation_count }}</td>
+              <td data-label="Piezime">{{ client.signed_up_events?.[0]?.client_note || '-' }}</td>
+              <td data-label="Komentars">{{ client.last_comment || '-' }}</td>
+              <td data-label="">
                 <button class="details-button" @click="selectClient(client.id)">
                   {{ selectedClientId === client.id ? 'Slēpt detaļas' : 'Skatīt detaļas' }}
                 </button>
@@ -277,6 +300,8 @@ onMounted(() => {
 
 .lead {
   margin: 0 0 18px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
 .error-message {
@@ -290,6 +315,10 @@ onMounted(() => {
   margin-top: 20px;
   border: 1px solid #e5eaf0;
   border-radius: 12px;
+}
+
+.mobile-filter-panel {
+  display: none;
 }
 
 table {
@@ -368,6 +397,7 @@ section .details-card {
   display: grid;
   gap: 18px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow-wrap: anywhere;
 }
 
 .section-block {
@@ -384,6 +414,7 @@ ul li {
   border: 1px solid #e5eaf0;
   border-radius: 12px;
   margin-bottom: 12px;
+  overflow-wrap: anywhere;
 }
 
 textarea {
@@ -392,6 +423,118 @@ textarea {
   border: 1px solid #d3dde8;
   padding: 12px;
   margin-top: 10px;
+}
+
+@media (max-width: 760px) {
+  .dashboard {
+    gap: 16px;
+    padding: 84px 12px 32px;
+  }
+
+  .dashboard-card,
+  .table-card,
+  .details-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .table-card h2,
+  .dashboard-card h1,
+  .details-card h2 {
+    font-size: 1.55rem;
+    line-height: 1.2;
+  }
+
+  .clients-table-frame {
+    max-height: none;
+    overflow: visible;
+    margin-top: 14px;
+    border: none;
+    border-radius: 10px;
+  }
+
+  .mobile-filter-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  table,
+  thead,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  tbody tr {
+    padding: 14px;
+    border: 1px solid #e5eaf0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(34, 85, 179, 0.08);
+  }
+
+  tbody td {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eef2f7;
+    overflow-wrap: anywhere;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    color: var(--color-primary-start);
+    font-weight: 700;
+  }
+
+  tbody td:last-child {
+    display: block;
+    border-bottom: none;
+    padding-top: 12px;
+  }
+
+  tbody td:last-child::before {
+    content: none;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .heading-row th {
+    top: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-card h1,
+  .details-card h2 {
+    font-size: 1.55rem;
+    line-height: 1.2;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .details-button {
+    min-width: 0;
+  }
 }
 
 </style>

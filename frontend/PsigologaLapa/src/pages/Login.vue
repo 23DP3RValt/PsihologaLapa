@@ -45,10 +45,10 @@ const login = async () => {
 <template>
   <div class="login-page">
     <form class="login-card" @submit.prevent="login">
-      <h2>Pieslegties</h2>
-      <p>Ievadi savus datus, un sistema atvers tev atbilstoso paneli.</p>
+      <h2>Pieslēgties</h2>
+      <p>Ievadi savus datus, un sistēma atvērs tev atbilstošo paneli.</p>
 
-      <input v-model="email" type="email" placeholder="Email" />
+      <input v-model="email" type="email" placeholder="Epasts" />
       <div class="password-field">
         <input
           v-model="password"
@@ -61,13 +61,18 @@ const login = async () => {
           :aria-label="showPassword ? 'Slept paroli' : 'Radit paroli'"
           @click="showPassword = !showPassword"
         >
-          {{ showPassword ? 'Slept' : 'Radit' }}
+          {{ showPassword ? 'Slept' : 'Rādit' }}
         </button>
       </div>
 
       <button type="submit" :disabled="isSubmitting">
-        {{ isSubmitting ? 'Notiek ielade...' : 'Pieslegties' }}
+        {{ isSubmitting ? 'Notiek ielade...' : 'Pieslēgties' }}
       </button>
+
+      <div class="register-prompt">
+        <span>Vēl nav klienta profila?</span>
+        <router-link class="register-link" to="/registresana">Registrēties</router-link>
+      </div>
 
       <p v-if="error" class="error">{{ error }}</p>
     </form>
@@ -81,6 +86,11 @@ const login = async () => {
   place-items: center;
   padding: 120px 24px 40px;
   background: linear-gradient(180deg, #2255B3 0%, #1EC4F2 100%);
+}
+
+.login-card {
+  width: min(100%, 420px);
+  display: grid;
   flex-direction: column;
   gap: 14px;
   padding: 32px;
@@ -95,6 +105,7 @@ const login = async () => {
 }
 
 input {
+  width: 100%;
   padding: 12px 14px;
   border: 1px solid #c6d4dd;
   border-radius: 12px;
@@ -132,8 +143,57 @@ button:disabled {
   background: #2255B3;
 }
 
+.register-prompt {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding-top: 4px;
+  color: #4f5c72;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.register-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  width: 100%;
+  border: 1px solid rgba(34, 85, 179, 0.18);
+  border-radius: 999px;
+  background: #eef5ff;
+  color: var(--color-primary-start);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.register-link:hover {
+  background: rgba(34, 85, 179, 0.12);
+  color: #17264d;
+}
+
 .error {
   color: #DD4125;
   font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 88px 12px 32px;
+  }
+
+  .login-card {
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .password-field {
+    grid-template-columns: 1fr;
+  }
+
+  .password-toggle {
+    width: 100%;
+  }
 }
 </style>

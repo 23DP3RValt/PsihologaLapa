@@ -9,19 +9,34 @@ import api from '@/services/api'
 const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
 const psychologist = authData.user || {}
 const events = ref([])
+const isSmallScreen = () => window.innerWidth <= 640
 
 const form = reactive({
   title: '',
   event_type: 'konsultacija',
-  start: '',
-  end: '',
+  startDate: '',
+  startTime: '',
+  endDate: '',
+  endTime: '',
   description: '',
   color: '#3498db'
 })
 
+const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/
+
+function isValidTime(value) {
+  return timePattern.test(value)
+}
+
+function combineDateTime(date, time) {
+  return date && time ? `${date}T${time}` : ''
+}
+
 const calendarOptions = ref({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: 'dayGridMonth',
+  initialView: isSmallScreen() ? 'timeGridDay' : 'dayGridMonth',
+  height: 'auto',
+  dayMaxEvents: true,
   slotLabelFormat: {
     hour: '2-digit',
     minute: '2-digit',
@@ -39,6 +54,9 @@ const calendarOptions = ref({
     left: 'prev,next today',
     center: 'title',
     right: 'dayGridMonth,timeGridWeek,timeGridDay'
+  },
+  windowResize: ({ view }) => {
+    view.calendar.changeView(isSmallScreen() ? 'timeGridDay' : 'dayGridMonth')
   },
   dateClick: async (info) => {
     const title = window.prompt('Ievadi notikuma nosaukumu:', 'Konsultācija')
@@ -129,17 +147,31 @@ async function updateEventTime(event) {
 }
 
 async function createEvent() {
-  if (!form.title || !form.start) {
+  if (!form.title || !form.startDate || !form.startTime) {
     alert('Lūdzu ievadi nosaukumu un sākuma laiku.')
     return
   }
+
+  if (!isValidTime(form.startTime)) {
+    alert('Sakuma laiku ievadi 24h formata, piemeram, 09:30 vai 17:45.')
+    return
+  }
+
+  if ((form.endDate || form.endTime) && !isValidTime(form.endTime)) {
+    alert('Beigu laiku ievadi 24h formata, piemeram, 10:30 vai 18:45.')
+    return
+  }
+
+  const start = combineDateTime(form.startDate, form.startTime)
+  const endDate = form.endDate || form.startDate
+  const end = form.endTime ? combineDateTime(endDate, form.endTime) : start
 
   try {
     await api.post('/events', {
       title: form.title,
       event_type: form.event_type,
-      start: form.start,
-      end: form.end || form.start,
+      start,
+      end,
       description: form.description,
       color: form.color
     })
@@ -148,8 +180,10 @@ async function createEvent() {
     Object.assign(form, {
       title: '',
       event_type: 'konsultacija',
-      start: '',
-      end: '',
+      startDate: '',
+      startTime: '',
+      endDate: '',
+      endTime: '',
       description: '',
       color: '#3498db'
     })
@@ -182,7 +216,7 @@ onMounted(() => {
 <template>
   <section class="dashboard">
     <div class="card dashboard-card">
-      <p class="eyebrow">Psychologist dashboard</p>
+      <p class="eyebrow">Psihologa pārvaldības lapa</p>
       <h1>Sveicināts, {{ psychologist.name || 'psiholog' }}</h1>
       <p class="lead">
         Šeit vari pievienot jaunas konsultācijas vai pētījumus, un klienti var pieteikties tiem.
@@ -224,11 +258,29 @@ onMounted(() => {
       </div>
       <div class="form-row">
         <label>Sākuma datums un laiks (24h formatā)</label>
-        <input v-model="form.start" type="datetime-local" lang="en-GB" />
+        <div class="date-time-row">
+          <input v-model="form.startDate" type="date" />
+          <input
+            v-model.trim="form.startTime"
+            type="text"
+            inputmode="numeric"
+            pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+            placeholder="09:30"
+          />
+        </div>
       </div>
       <div class="form-row">
         <label>Beigu datums un laiks (24h formatā)</label>
-        <input v-model="form.end" type="datetime-local" lang="en-GB" />
+        <div class="date-time-row">
+          <input v-model="form.endDate" type="date" />
+          <input
+            v-model.trim="form.endTime"
+            type="text"
+            inputmode="numeric"
+            pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+            placeholder="10:30"
+          />
+        </div>
       </div>
       <div class="form-row">
         <label>Apraksts</label>
@@ -243,6 +295,7 @@ onMounted(() => {
 
     <div class="card table-card">
       <h2>Notikumu saraksts</h2>
+      <div class="table-frame">
       <table>
         <thead>
           <tr>
@@ -257,19 +310,20 @@ onMounted(() => {
         </thead>
         <tbody>
           <tr v-for="event in events" :key="event.id">
-            <td>{{ event.id }}</td>
-            <td>{{ event.title }}</td>
-            <td>{{ event.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija' }}</td>
-            <td>{{ event.start }} - {{ event.end || event.start }}</td>
-            <td>{{ event.is_booked ? 'Aizņemts' : 'Brīvs' }}</td>
-            <td>{{ event.client_name || '-' }}</td>
-            <td><button class="delete-button" @click="removeEvent(event.id)">Dzēst</button></td>
+            <td data-label="#">{{ event.id }}</td>
+            <td data-label="Nosaukums">{{ event.title }}</td>
+            <td data-label="Veids">{{ event.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija' }}</td>
+            <td data-label="Datums">{{ event.start }} - {{ event.end || event.start }}</td>
+            <td data-label="Statuss">{{ event.is_booked ? 'Aizņemts' : 'Brīvs' }}</td>
+            <td data-label="Klients">{{ event.client_name || '-' }}</td>
+            <td data-label=""><button class="delete-button" @click="removeEvent(event.id)">Dzēst</button></td>
           </tr>
           <tr v-if="events.length === 0">
             <td colspan="7">Nav pievienotu pasākumu.</td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   </section>
 </template>
@@ -304,6 +358,15 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.calendar-card :deep(.fc-toolbar) {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.calendar-card :deep(.fc-toolbar-title) {
+  font-size: clamp(1.2rem, 4vw, 1.75rem);
+}
+
 .eyebrow {
   margin: 0 0 10px;
   text-transform: uppercase;
@@ -314,12 +377,15 @@ onMounted(() => {
 
 .lead {
   margin: 0 0 18px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
 .details {
   display: grid;
   gap: 10px;
   margin-top: 20px;
+  overflow-wrap: anywhere;
 }
 
 .form-row {
@@ -330,6 +396,12 @@ onMounted(() => {
 
 .form-row label {
   font-weight: 600;
+}
+
+.date-time-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 10px;
 }
 
 input,
@@ -347,6 +419,12 @@ textarea {
   resize: vertical;
 }
 
+@media (max-width: 560px) {
+  .date-time-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 button {
   border: none;
   border-radius: 999px;
@@ -356,10 +434,18 @@ button {
   cursor: pointer;
 }
 
+.table-frame {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 20px;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  min-width: 760px;
 }
 
 thead th {
@@ -380,5 +466,117 @@ tbody td {
   background: transparent;
   cursor: pointer;
   font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .dashboard {
+    gap: 16px;
+    padding: 88px 12px 32px;
+  }
+
+  .dashboard-card,
+  .form-card,
+  .table-card,
+  .calendar-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .dashboard-card h1,
+  .calendar-card h2,
+  .form-card h2,
+  .table-card h2 {
+    font-size: 1.55rem;
+    line-height: 1.2;
+  }
+
+  .calendar-card :deep(.fc-header-toolbar) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .calendar-card :deep(.fc-toolbar-chunk) {
+    display: flex;
+    justify-content: center;
+  }
+
+  .calendar-card :deep(.fc-button) {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.82rem;
+  }
+
+  .table-frame {
+    overflow: visible;
+    border: none;
+  }
+
+  table,
+  thead,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  tbody tr {
+    padding: 14px;
+    border: 1px solid #e5eaf0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(34, 85, 179, 0.08);
+  }
+
+  tbody td {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eef2f7;
+    overflow-wrap: anywhere;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    color: var(--color-primary-start);
+    font-weight: 700;
+  }
+
+  tbody td:last-child {
+    display: block;
+    border-bottom: none;
+    padding-top: 12px;
+  }
+
+  tbody td:last-child::before {
+    content: none;
+  }
+}
+
+@media (max-width: 480px) {
+  input,
+  select,
+  textarea {
+    font-size: 0.95rem;
+    padding: 11px 12px;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .delete-button {
+    width: auto;
+  }
 }
 </style>
