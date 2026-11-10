@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\Psychologist;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
 class EventController extends Controller
@@ -13,7 +14,21 @@ class EventController extends Controller
     public function index()
     {
         try {
-            $events = Event::with(['psychologist', 'client'])->get();
+            $actor = Auth::guard('sanctum')->user();
+            $query = Event::with(['psychologist', 'client']);
+
+            if ($actor instanceof Psychologist) {
+                $query->where('psychologist_id', $actor->id);
+            } elseif ($actor instanceof User) {
+                $query->where(function ($query) use ($actor) {
+                    $query->whereNull('client_id')
+                        ->orWhere('client_id', $actor->id);
+                });
+            } else {
+                $query->whereNull('client_id');
+            }
+
+            $events = $query->get();
             return response()->json($events);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -32,14 +47,14 @@ class EventController extends Controller
                 'title' => 'required|string|max:255',
                 'event_type' => 'required|string|in:konsultacija,petijums',
                 'start' => 'required|string',
-                'end' => 'nullable|string',
+                'end' => 'required|string',
                 'description' => 'nullable|string',
                 'color' => 'nullable|string'
             ]);
 
             try {
                 $validated['start'] = $this->parseDate($validated['start']);
-                $validated['end'] = $validated['end'] ? $this->parseDate($validated['end']) : $validated['start'];
+                $validated['end'] = $this->parseDate($validated['end']);
             } catch (\Exception $e) {
                 \Log::error('Date parsing error: ' . $e->getMessage());
                 return response()->json(['error' => 'Invalid date format: ' . $e->getMessage()], 422);

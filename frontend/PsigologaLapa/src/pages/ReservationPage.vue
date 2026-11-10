@@ -1,25 +1,24 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
+import lvLocale from '@fullcalendar/core/locales/lv'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import { calendarEventClassNames, renderCalendarEvent } from '@/utils/calendarEvents'
 import api from '@/services/api'
 
 const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
 const isClient = authData.role === 'client'
-const isSmallScreen = () => window.innerWidth <= 640
+let eventsRefreshInterval
 
 const calendarOptions = ref({
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: isSmallScreen() ? 'timeGridDay' : 'dayGridMonth',
+  plugins: [dayGridPlugin, interactionPlugin],
+  initialView: 'dayGridWeek',
+  locale: lvLocale,
+  firstDay: 1,
   height: 'auto',
-  dayMaxEvents: true,
-  slotLabelFormat: {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  },
+  eventContent: renderCalendarEvent,
+  eventClassNames: calendarEventClassNames,
   eventTimeFormat: {
     hour: '2-digit',
     minute: '2-digit',
@@ -31,10 +30,7 @@ const calendarOptions = ref({
   headerToolbar: {
     left: 'prev,next today',
     center: 'title',
-    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-  },
-  windowResize: ({ view }) => {
-    view.calendar.changeView(isSmallScreen() ? 'timeGridDay' : 'dayGridMonth')
+    right: ''
   },
   eventClick: async (info) => {
     const event = info.event
@@ -69,7 +65,7 @@ const calendarOptions = ref({
   }
 })
 
-async function loadEvents() {
+async function loadEvents(showError = true) {
   try {
     const events = await api.get('/events')
     calendarOptions.value.events = events.map((e) => ({
@@ -77,7 +73,7 @@ async function loadEvents() {
       title: `${e.title} (${e.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija'})`,
       start: e.start,
       end: e.end || e.start,
-      color: e.is_booked ? '#DD4125' : e.color || '#21A5AE',
+      color: e.is_booked ? '#198754' : e.color || '#21A5AE',
       extendedProps: {
         description: e.description,
         event_type: e.event_type,
@@ -87,12 +83,25 @@ async function loadEvents() {
     }))
   } catch (e) {
     console.error('Failed to load events:', e.response?.data || e.message)
-    alert('Nevar ielādēt pieejamos laikus. Pārbaudi serveri.')
+    if (showError) {
+      alert('Nevar ielādēt pieejamos laikus. Pārbaudi serveri.')
+    }
   }
+}
+
+function refreshEventsWhenFocused() {
+  loadEvents(false)
 }
 
 onMounted(() => {
   loadEvents()
+  eventsRefreshInterval = window.setInterval(() => loadEvents(false), 30000)
+  window.addEventListener('focus', refreshEventsWhenFocused)
+})
+
+onBeforeUnmount(() => {
+  window.clearInterval(eventsRefreshInterval)
+  window.removeEventListener('focus', refreshEventsWhenFocused)
 })
 </script>
 
@@ -100,7 +109,7 @@ onMounted(() => {
   <div class="reservation-page">
     <div class="calendar-wrapper">
       <h2>Rezervē konsultāciju vai pētījumu</h2>
-      <p class="subtitle">Klikšķini uz atvērtā laika, lai pieteiktos. Ja laiks ir aizņemts, tas parādīsies sarkans.</p>
+      <p class="subtitle">Klikšķini uz pieejamā laika, lai pieteiktos. Pēc pieteikšanās tavs nodarbības laiks būs zaļš.</p>
       <FullCalendar :options="calendarOptions" />
     </div>
   </div>
@@ -146,6 +155,35 @@ onMounted(() => {
 
 .calendar-wrapper :deep(.fc-toolbar-title) {
   font-size: clamp(1.2rem, 4vw, 1.75rem);
+}
+
+.calendar-wrapper :deep(.fc-daygrid-event) {
+  margin: 3px 0;
+  border: 0;
+  background: transparent;
+  white-space: normal;
+}
+
+.calendar-wrapper :deep(.calendar-event-card) {
+  display: grid;
+  gap: 2px;
+  padding: 5px 7px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  color: #176f96;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.calendar-wrapper :deep(.fc-event.booked-event .calendar-event-card) {
+  color: #16783b;
+  background: #e8f6ec;
+  font-weight: 700;
+}
+
+.calendar-wrapper :deep(.calendar-event-time) {
+  font-size: 0.8rem;
 }
 
 @media (max-width: 640px) {

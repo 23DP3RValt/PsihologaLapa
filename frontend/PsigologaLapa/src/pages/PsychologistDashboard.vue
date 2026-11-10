@@ -1,16 +1,16 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
+import lvLocale from '@fullcalendar/core/locales/lv'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import { calendarEventClassNames, renderCalendarEvent } from '@/utils/calendarEvents'
 import api from '@/services/api'
 
 const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
 const psychologist = authData.user || {}
 const events = ref([])
-const isSmallScreen = () => window.innerWidth <= 640
-
+let eventsRefreshInterval
 const form = reactive({
   title: '',
   event_type: 'konsultacija',
@@ -33,15 +33,13 @@ function combineDateTime(date, time) {
 }
 
 const calendarOptions = ref({
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: isSmallScreen() ? 'timeGridDay' : 'dayGridMonth',
+  plugins: [dayGridPlugin, interactionPlugin],
+  initialView: 'dayGridWeek',
+  locale: lvLocale,
+  firstDay: 1,
   height: 'auto',
-  dayMaxEvents: true,
-  slotLabelFormat: {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  },
+  eventContent: renderCalendarEvent,
+  eventClassNames: calendarEventClassNames,
   eventTimeFormat: {
     hour: '2-digit',
     minute: '2-digit',
@@ -53,14 +51,30 @@ const calendarOptions = ref({
   headerToolbar: {
     left: 'prev,next today',
     center: 'title',
-    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-  },
-  windowResize: ({ view }) => {
-    view.calendar.changeView(isSmallScreen() ? 'timeGridDay' : 'dayGridMonth')
+    right: ''
   },
   dateClick: async (info) => {
     const title = window.prompt('Ievadi notikuma nosaukumu:', 'Konsultācija')
     if (!title) return
+
+    const startTime = window.prompt('Ievadi sākuma laiku (HH:MM):', '09:00')
+    if (!startTime || !isValidTime(startTime)) {
+      alert('Sākuma laiku ievadi 24h formātā, piemēram, 09:00.')
+      return
+    }
+
+    const endTime = window.prompt('Ievadi beigu laiku (HH:MM):', '10:00')
+    if (!endTime || !isValidTime(endTime)) {
+      alert('Beigu laiku ievadi 24h formātā, piemēram, 10:00.')
+      return
+    }
+
+    const start = `${info.dateStr}T${startTime}`
+    const end = `${info.dateStr}T${endTime}`
+    if (new Date(end) <= new Date(start)) {
+      alert('Beigu laikam jābūt vēlākam par sākuma laiku.')
+      return
+    }
 
     const eventTypeInput = window.prompt('Izvēlies veidu: "konsultacija" vai "petijums"', 'konsultacija')
     if (!eventTypeInput) return
@@ -74,8 +88,8 @@ const calendarOptions = ref({
     const payload = {
       title,
       event_type: eventType,
-      start: info.dateStr,
-      end: info.dateStr,
+      start,
+      end,
       description: ''
     }
 
@@ -120,7 +134,7 @@ async function loadEvents() {
       title: `${event.title} (${event.event_type === 'petijums' ? 'Pētījums' : 'Konsultācija'})`,
       start: event.start,
       end: event.end || event.start,
-      color: event.is_booked ? '#DD4125' : event.color || '#21A5AE',
+      color: event.is_booked ? '#198754' : event.color || '#21A5AE',
       extendedProps: {
         event_type: event.event_type,
         is_booked: event.is_booked,
@@ -148,7 +162,12 @@ async function updateEventTime(event) {
 
 async function createEvent() {
   if (!form.title || !form.startDate || !form.startTime) {
-    alert('Lūdzu ievadi nosaukumu un sākuma laiku.')
+    alert('Lūdzu ievadi nosaukumu, sākuma un beigu laiku.')
+    return
+  }
+
+  if (!form.endTime) {
+    alert('Lūdzu ievadi beigu laiku.')
     return
   }
 
@@ -157,7 +176,7 @@ async function createEvent() {
     return
   }
 
-  if ((form.endDate || form.endTime) && !isValidTime(form.endTime)) {
+  if (!isValidTime(form.endTime)) {
     alert('Beigu laiku ievadi 24h formata, piemeram, 10:30 vai 18:45.')
     return
   }
@@ -165,6 +184,10 @@ async function createEvent() {
   const start = combineDateTime(form.startDate, form.startTime)
   const endDate = form.endDate || form.startDate
   const end = form.endTime ? combineDateTime(endDate, form.endTime) : start
+  if (new Date(end) <= new Date(start)) {
+    alert('Beigu laikam jābūt vēlākam par sākuma laiku.')
+    return
+  }
 
   try {
     await api.post('/events', {
@@ -210,6 +233,13 @@ async function removeEvent(id) {
 
 onMounted(() => {
   loadEvents()
+  eventsRefreshInterval = window.setInterval(loadEvents, 30000)
+  window.addEventListener('focus', loadEvents)
+})
+
+onBeforeUnmount(() => {
+  window.clearInterval(eventsRefreshInterval)
+  window.removeEventListener('focus', loadEvents)
 })
 </script>
 
@@ -247,7 +277,7 @@ onMounted(() => {
       <h2>Pievienot jaunu notikumu</h2>
       <div class="form-row">
         <label>Nosaukums</label>
-        <input v-model="form.title" placeholder="Piem., Konsultācija ar klientu" />
+        <input v-model="form.title" required placeholder="Piem., Konsultācija ar klientu" />
       </div>
       <div class="form-row">
         <label>Veids</label>
@@ -257,11 +287,12 @@ onMounted(() => {
         </select>
       </div>
       <div class="form-row">
-        <label>Sākuma datums un laiks (24h formatā)</label>
+        <label>Sākuma datums un laiks</label>
         <div class="date-time-row">
-          <input v-model="form.startDate" type="date" />
+          <input v-model="form.startDate" required type="date" />
           <input
             v-model.trim="form.startTime"
+            required
             type="text"
             inputmode="numeric"
             pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
@@ -270,11 +301,12 @@ onMounted(() => {
         </div>
       </div>
       <div class="form-row">
-        <label>Beigu datums un laiks (24h formatā)</label>
+        <label>Beigu datums un laiks</label>
         <div class="date-time-row">
           <input v-model="form.endDate" type="date" />
           <input
             v-model.trim="form.endTime"
+            required
             type="text"
             inputmode="numeric"
             pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
@@ -356,6 +388,35 @@ onMounted(() => {
 .calendar-card .fc {
   border-radius: 16px;
   overflow: hidden;
+}
+
+.calendar-card :deep(.fc-daygrid-event) {
+  margin: 3px 0;
+  border: 0;
+  background: transparent;
+  white-space: normal;
+}
+
+.calendar-card :deep(.calendar-event-card) {
+  display: grid;
+  gap: 2px;
+  padding: 5px 7px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  color: #176f96;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.calendar-card :deep(.fc-event.booked-event .calendar-event-card) {
+  color: #16783b;
+  background: #e8f6ec;
+  font-weight: 700;
+}
+
+.calendar-card :deep(.calendar-event-time) {
+  font-size: 0.8rem;
 }
 
 .calendar-card :deep(.fc-toolbar) {
