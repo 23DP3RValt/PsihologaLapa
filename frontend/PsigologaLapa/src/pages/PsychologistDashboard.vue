@@ -10,13 +10,15 @@ import api from '@/services/api'
 const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
 const psychologist = authData.user || {}
 const events = ref([])
+const showEventModal = ref(false)
+const selectedDate = ref('')
+const eventFormError = ref('')
+const isSavingEvent = ref(false)
 let eventsRefreshInterval
 const form = reactive({
   title: '',
   event_type: 'konsultacija',
-  startDate: '',
   startTime: '',
-  endDate: '',
   endTime: '',
   description: '',
   color: '#3498db'
@@ -53,54 +55,8 @@ const calendarOptions = ref({
     center: 'title',
     right: ''
   },
-  dateClick: async (info) => {
-    const title = window.prompt('Ievadi notikuma nosaukumu:', 'Konsultācija')
-    if (!title) return
-
-    const startTime = window.prompt('Ievadi sākuma laiku (HH:MM):', '09:00')
-    if (!startTime || !isValidTime(startTime)) {
-      alert('Sākuma laiku ievadi 24h formātā, piemēram, 09:00.')
-      return
-    }
-
-    const endTime = window.prompt('Ievadi beigu laiku (HH:MM):', '10:00')
-    if (!endTime || !isValidTime(endTime)) {
-      alert('Beigu laiku ievadi 24h formātā, piemēram, 10:00.')
-      return
-    }
-
-    const start = `${info.dateStr}T${startTime}`
-    const end = `${info.dateStr}T${endTime}`
-    if (new Date(end) <= new Date(start)) {
-      alert('Beigu laikam jābūt vēlākam par sākuma laiku.')
-      return
-    }
-
-    const eventTypeInput = window.prompt('Izvēlies veidu: "konsultacija" vai "petijums"', 'konsultacija')
-    if (!eventTypeInput) return
-
-    const eventType = eventTypeInput.trim().toLowerCase()
-    if (!['konsultacija', 'petijums'].includes(eventType)) {
-      alert('Lūdzu izvēlies "konsultacija" vai "petijums".')
-      return
-    }
-
-    const payload = {
-      title,
-      event_type: eventType,
-      start,
-      end,
-      description: ''
-    }
-
-    try {
-      await api.post('/events', payload)
-      await loadEvents()
-      alert('Konsultācija pievienota kalendārā.')
-    } catch (e) {
-      console.error('Failed to create event from calendar:', e.response?.data || e.message)
-      alert('Neizdevās pievienot konsultāciju. Pārbaudi konsoli.')
-    }
+  dateClick: (info) => {
+    openEventModal(info.dateStr)
   },
   eventClick: async (info) => {
     const event = info.event
@@ -125,6 +81,37 @@ const calendarOptions = ref({
 const totalEvents = computed(() => events.value.length)
 const bookedEvents = computed(() => events.value.filter((event) => event.is_booked).length)
 const openEvents = computed(() => totalEvents.value - bookedEvents.value)
+const selectedDateLabel = computed(() => {
+  if (!selectedDate.value) return ''
+
+  const [year, month, day] = selectedDate.value.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString('lv-LV', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+})
+
+function openEventModal(date) {
+  selectedDate.value = date.slice(0, 10)
+  eventFormError.value = ''
+  Object.assign(form, {
+    title: '',
+    event_type: 'konsultacija',
+    startTime: '',
+    endTime: '',
+    description: '',
+    color: '#3498db'
+  })
+  showEventModal.value = true
+}
+
+function closeEventModal() {
+  if (isSavingEvent.value) return
+  showEventModal.value = false
+  eventFormError.value = ''
+}
 
 async function loadEvents() {
   try {
@@ -161,37 +148,28 @@ async function updateEventTime(event) {
 }
 
 async function createEvent() {
-  if (!form.title || !form.startDate || !form.startTime) {
-    alert('Lūdzu ievadi nosaukumu, sākuma un beigu laiku.')
+  eventFormError.value = ''
+  if (!form.title.trim() || !selectedDate.value || !form.startTime || !form.endTime) {
+    eventFormError.value = 'Lūdzu aizpildi nosaukumu un sākuma un beigu laiku.'
     return
   }
 
-  if (!form.endTime) {
-    alert('Lūdzu ievadi beigu laiku.')
+  if (!isValidTime(form.startTime) || !isValidTime(form.endTime)) {
+    eventFormError.value = 'Laiku ievadi 24h formātā, piemēram, 09:30 vai 17:45.'
     return
   }
 
-  if (!isValidTime(form.startTime)) {
-    alert('Sakuma laiku ievadi 24h formata, piemeram, 09:30 vai 17:45.')
-    return
-  }
-
-  if (!isValidTime(form.endTime)) {
-    alert('Beigu laiku ievadi 24h formata, piemeram, 10:30 vai 18:45.')
-    return
-  }
-
-  const start = combineDateTime(form.startDate, form.startTime)
-  const endDate = form.endDate || form.startDate
-  const end = form.endTime ? combineDateTime(endDate, form.endTime) : start
+  const start = combineDateTime(selectedDate.value, form.startTime)
+  const end = combineDateTime(selectedDate.value, form.endTime)
   if (new Date(end) <= new Date(start)) {
-    alert('Beigu laikam jābūt vēlākam par sākuma laiku.')
+    eventFormError.value = 'Beigu laikam jābūt vēlākam par sākuma laiku.'
     return
   }
 
+  isSavingEvent.value = true
   try {
     await api.post('/events', {
-      title: form.title,
+      title: form.title.trim(),
       event_type: form.event_type,
       start,
       end,
@@ -199,21 +177,13 @@ async function createEvent() {
       color: form.color
     })
 
-    alert('Pasākums pievienots veiksmīgi.')
-    Object.assign(form, {
-      title: '',
-      event_type: 'konsultacija',
-      startDate: '',
-      startTime: '',
-      endDate: '',
-      endTime: '',
-      description: '',
-      color: '#3498db'
-    })
+    showEventModal.value = false
     await loadEvents()
   } catch (e) {
     console.error('Failed to create event:', e.response?.data || e.message)
-    alert('Neizdevās pievienot pasākumu: ' + (e.response?.data?.error || e.message))
+    eventFormError.value = 'Neizdevās pievienot notikumu: ' + (e.response?.data?.error || e.message)
+  } finally {
+    isSavingEvent.value = false
   }
 }
 
@@ -269,28 +239,41 @@ onBeforeUnmount(() => {
 
     <div class="card calendar-card">
       <h2>Kalendārs</h2>
-      <p>Klikšķini uz datuma, lai pievienotu jaunu konsultāciju vai pētījumu tieši kalendārā.</p>
+      <p>Klikšķini uz datuma, lai pievienotu jaunu konsultāciju vai pētījumu.</p>
       <FullCalendar :options="calendarOptions" />
     </div>
 
-    <div class="card form-card">
-      <h2>Pievienot jaunu notikumu</h2>
-      <div class="form-row">
-        <label>Nosaukums</label>
-        <input v-model="form.title" required placeholder="Piem., Konsultācija ar klientu" />
-      </div>
-      <div class="form-row">
-        <label>Veids</label>
-        <select v-model="form.event_type">
-          <option value="konsultacija">Konsultācija</option>
-          <option value="petijums">Pētījums</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label>Sākuma datums un laiks</label>
-        <div class="date-time-row">
-          <input v-model="form.startDate" required type="date" />
+    <div v-if="showEventModal" class="event-modal-backdrop" @click.self="closeEventModal">
+      <section
+        class="event-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="event-modal-title"
+      >
+        <button
+          type="button"
+          class="modal-close"
+          aria-label="Aizvērt"
+          :disabled="isSavingEvent"
+          @click="closeEventModal"
+        >×</button>
+        <h2 id="event-modal-title">Pievienot jaunu notikumu</h2>
+        <p class="selected-date">Datums: {{ selectedDateLabel }}</p>
+        <div class="form-row">
+          <label for="event-title">Nosaukums</label>
+          <input id="event-title" v-model="form.title" required placeholder="Piem., Konsultācija ar klientu" />
+        </div>
+        <div class="form-row">
+          <label for="event-type">Veids</label>
+          <select id="event-type" v-model="form.event_type">
+            <option value="konsultacija">Konsultācija</option>
+            <option value="petijums">Pētījums</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="event-start-time">Sākuma laiks</label>
           <input
+            id="event-start-time"
             v-model.trim="form.startTime"
             required
             type="text"
@@ -299,12 +282,10 @@ onBeforeUnmount(() => {
             placeholder="09:30"
           />
         </div>
-      </div>
-      <div class="form-row">
-        <label>Beigu datums un laiks</label>
-        <div class="date-time-row">
-          <input v-model="form.endDate" type="date" />
+        <div class="form-row">
+          <label for="event-end-time">Beigu laiks</label>
           <input
+            id="event-end-time"
             v-model.trim="form.endTime"
             required
             type="text"
@@ -313,16 +294,24 @@ onBeforeUnmount(() => {
             placeholder="10:30"
           />
         </div>
-      </div>
-      <div class="form-row">
-        <label>Apraksts</label>
-        <textarea v-model="form.description" placeholder="Papildus informācija"></textarea>
-      </div>
-      <div class="form-row">
-        <label>Krāsa</label>
-        <input v-model="form.color" type="color" />
-      </div>
-      <button @click.prevent="createEvent">Saglabāt notikumu</button>
+        <div class="form-row">
+          <label for="event-description">Apraksts</label>
+          <textarea id="event-description" v-model="form.description" placeholder="Papildus informācija"></textarea>
+        </div>
+        <div class="form-row">
+          <label for="event-color">Krāsa</label>
+          <input id="event-color" v-model="form.color" type="color" />
+        </div>
+        <p v-if="eventFormError" class="form-error" role="alert">{{ eventFormError }}</p>
+        <div class="modal-actions">
+          <button type="button" class="cancel-button" :disabled="isSavingEvent" @click="closeEventModal">
+            Atcelt
+          </button>
+          <button type="button" :disabled="isSavingEvent" @click="createEvent">
+            {{ isSavingEvent ? 'Saglabā...' : 'Saglabāt notikumu' }}
+          </button>
+        </div>
+      </section>
     </div>
 
     <div class="card table-card">
@@ -370,9 +359,9 @@ onBeforeUnmount(() => {
 }
 
 .dashboard-card,
-.form-card,
 .table-card,
-.calendar-card {
+.calendar-card,
+.event-modal {
   width: min(100%, 1100px);
   padding: 28px;
   border-radius: 24px;
@@ -383,6 +372,65 @@ onBeforeUnmount(() => {
 .calendar-card {
   display: grid;
   gap: 16px;
+}
+
+.event-modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(15, 30, 55, 0.58);
+}
+
+.event-modal {
+  position: relative;
+  width: min(100%, 560px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.event-modal h2 {
+  margin: 0 42px 8px 0;
+  color: var(--color-primary-start);
+}
+
+.selected-date {
+  margin: 0 0 20px;
+  color: #4f5c72;
+  font-weight: 600;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: #eef3f8;
+  color: #334155;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-actions .cancel-button {
+  color: #334155;
+  background: #eef3f8;
+}
+
+.form-error {
+  margin: 0;
+  color: #b42318;
 }
 
 .calendar-card .fc {
@@ -536,16 +584,15 @@ tbody td {
   }
 
   .dashboard-card,
-  .form-card,
   .table-card,
-  .calendar-card {
+  .calendar-card,
+  .event-modal {
     padding: 18px;
     border-radius: 16px;
   }
 
   .dashboard-card h1,
   .calendar-card h2,
-  .form-card h2,
   .table-card h2 {
     font-size: 1.55rem;
     line-height: 1.2;
