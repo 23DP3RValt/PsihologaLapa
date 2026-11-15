@@ -9,7 +9,27 @@ import api from '@/services/api'
 
 const authData = JSON.parse(localStorage.getItem('authUser') || '{}')
 const isClient = authData.role === 'client'
+const googleCalendarUrl = ref('')
+const bookedEventTitle = ref('')
 let eventsRefreshInterval
+
+function toGoogleCalendarDate(date) {
+  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+}
+
+function createGoogleCalendarUrl(event) {
+  const start = event.start
+  const end = event.end || new Date(start.getTime() + 30 * 60 * 1000)
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: event.title,
+    dates: `${toGoogleCalendarDate(start)}/${toGoogleCalendarDate(end)}`,
+    details: event.extendedProps?.description || '',
+    ctz: 'Europe/Riga'
+  })
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
+}
 
 const calendarOptions = ref({
   plugins: [dayGridPlugin, interactionPlugin],
@@ -56,7 +76,8 @@ const calendarOptions = ref({
       await api.post(`/events/${event.id}/signup`, {
         client_note: clientNote.trim() || null
       })
-      alert('Jūsu pieteikums ir saglabāts. Psihologs to redzēs blakus.')
+      bookedEventTitle.value = event.title
+      googleCalendarUrl.value = createGoogleCalendarUrl(event)
       await loadEvents()
     } catch (e) {
       console.error('Signup failed:', e.response?.data || e.message)
@@ -110,6 +131,21 @@ onBeforeUnmount(() => {
     <div class="calendar-wrapper">
       <h2>Rezervē konsultāciju vai pētījumu</h2>
       <p class="subtitle">Klikšķini uz pieejamā laika, lai pieteiktos. Pēc pieteikšanās tavs nodarbības laiks būs zaļš.</p>
+      <section v-if="googleCalendarUrl" class="calendar-confirmation" role="status">
+        <div>
+          <strong>Rezervācija saglabāta!</strong>
+          <p>{{ bookedEventTitle }} ir pievienota tavam pieteikumam. Pievieno to Google Calendar un apstiprini tur.</p>
+        </div>
+        <a :href="googleCalendarUrl" target="_blank" rel="noopener noreferrer">
+          Pievienot Google Calendar
+        </a>
+        <button
+          type="button"
+          class="dismiss-confirmation"
+          aria-label="Aizvērt paziņojumu"
+          @click="googleCalendarUrl = ''"
+        >×</button>
+      </section>
       <FullCalendar :options="calendarOptions" />
     </div>
   </div>
@@ -142,6 +178,43 @@ onBeforeUnmount(() => {
 .subtitle {
   color: #4f5c72;
   margin-bottom: 20px;
+}
+
+.calendar-confirmation {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 52px 16px 18px;
+  border: 1px solid #a8d7b6;
+  border-radius: 12px;
+  background: #e8f6ec;
+  color: #155d31;
+}
+
+.calendar-confirmation p {
+  margin: 4px 0 0;
+}
+
+.calendar-confirmation a {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #16783b;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dismiss-confirmation {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  background: transparent;
+  color: #155d31;
+  font-size: 1.25rem;
 }
 
 .calendar-wrapper :deep(.fc) {
@@ -201,6 +274,16 @@ onBeforeUnmount(() => {
 
   .subtitle {
     font-size: 0.95rem;
+  }
+
+  .calendar-confirmation {
+    align-items: stretch;
+    flex-direction: column;
+    padding-right: 40px;
+  }
+
+  .calendar-confirmation a {
+    text-align: center;
   }
 
   .calendar-wrapper :deep(.fc-header-toolbar) {
